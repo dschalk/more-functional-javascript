@@ -18,7 +18,6 @@ var stat;
 var solo = "solo";
 var gameData = "nobody 0 | 0 \njudy 0 | 0"
 
-
 function testPrefix (x,y) {
    var t = y;
    if (Array.isArray(x)) {
@@ -31,45 +30,330 @@ function testPrefix (x,y) {
   return t;
 }
 
-function Monad(z = 'default', ID = 'generic') {
-  var _this = this;
-  this.x = z;
-  this.id = ID;
-  this.bnd = function (func, ...args) {
-    var m = func(this.x, ...args)
-    var ID;
-    if (m instanceof Monad) {
-      ID = testPrefix(args, _this.id);
-      window[ID] = new Monad(m.x, ID);
-      return window[ID];
-    }
-    else return m;
+  function Monad(z = 'default', ID = 'temp') {
+    this.x = z;
+    this.id = ID;
   };
-  this.ret = function (a) {
-    return window[_this.id] = new Monad(a,_this.id);
-  };
-};
-
-function M3(z = 'default', ID = 'generic') {
-  var _this = this;
-  this.x = z;
-  this.id = ID;
-};
 
   function bind (monad, func, ...args) {
     var m = func(monad.x, ...args)
-    var ID;
-    if (m instanceof Monad) {
-      ID = testPrefix(args, monad.id);
-      window[ID] = new Monad(m.x, ID);
-      return window[ID];
-    }
-    else return m;
+    if (m instanceof Monad) {m = m.x};
+    var ID = testPrefix(args, monad.id);
+    window[ID] = new Monad(m, ID);
+    return bind;
+  };
+
+  function ret(v, id = 'temp') {
+    window[id] = new Monad(v, id);
+    return window[id];
+  }
+
+  function cube (v) {
+      return v*v*v;
+  };
+
+  function square (v) {
+      return v*v;
+  };
+
+  function add (a, b) {
+    return (parseInt(a,10) + parseInt(b,10));
   };
 
   function retrn (monad, value) {
-    return window[monad.id] = new Monad(a, monad.id);
+    window[monad.id] = new Monad (value, monad.id);
+    return bind;
   };
+
+  var M = function M(a, b) {
+    var mon = new Monad(a, b);
+    return mon;
+  };
+
+  var count = 0;
+  var mM1 = M([], 'mM1');
+  var mMbound = M(0, 'mMbound');
+  var mM2 = M(0, 'mM2');
+  var mM3 = M([], 'mM3');
+  var mM4 = M([], 'mM4');
+  var mM5 = M(0, 'mM5');
+  var mM6 = M('', 'mM6');
+  var mM7 = M(0, 'mM7');
+  var mM9 = M(3, 'mM9');
+  var mM10 = M(4, 'mM10');
+  var mM11 = M(5, 'mM11');
+  var mM12 = M(7, 'mM12');
+  var mM13 = M(12, 'mM13');
+  var mM14 = M(12, 'mM14');
+  var mM15 = M(12, 'mM15');
+  var mM16 = M(0, 'mM16');
+  var mM17 = M(0, 'mM17');
+  var mM18 = M(0, 'mM18');
+  var mM19 = M('waiting', 'mM19');
+  var mM20 = M(0, 'mM20');
+  var mM21 = M('Yes', 'mM21');
+  var mM22 = M(0, 'mM22');
+  var mM23 = M([0, 1, 1], 'mM23');
+  var mM24 = M([[2, 3], 4, 9], 'mM24');
+  var mM25 = M(3, 'mM25');
+  var mM26 = M(0, 'mM26');
+  var mM27 = M(0, 'mM27');
+  var mM28 = M([], 'mM28');
+  var mM29 = M([], 'mM29');
+  var mM30 = M(0, 'mM30');
+  var mM31 = M(0, 'mM31');
+  var mM32 = M(0, 'mM32');
+  var mM33 = M(0, 'mM33');
+  var mM34 = M(0, 'mM34');
+  var mM35 = M(3, 'mM35');
+  var mM36 = M('', 'mM36');
+  var mM37 = M('', 'mM37');
+  var mM38 = M(0, 'mM38');
+  var mM39 = M(0, 'mM39');
+  var mMscbd = M([], 'mMscbd');
+  var mMmessages = M([], 'mMmessages');
+  var mMscoreboard = M([], 'mMscoreboard');
+  var mMmsg = M([], 'mMmsg');
+  var mMgoals2 = M('', 'mMgoals2');
+  var mMname = M('', 'mMname');
+  var mMar = M([1, 2, 3, 4, 5], 'mMar');
+  var mMar2 = M([], 'mMar2');
+  var mMscores = M('', 'mMscores');
+  var mMprefix = M('', 'mMprefix');
+  var mMfib = M([0, 1], 'mMfib');
+  var mMfib2 = M([0, 1], 'mMfib2');
+  var mMmain = M(null, 'mMmain');
+  var mMcalc = M(null, 'mMcalc');
+  var mMadd = new Monad(0, 'mMadd');
+  var mMunit = new Monad(0, 'mMunit');
+  var mMprod = new Monad(0, 'mMprod');
+  var mMmult = new Monad({}, 'mMmult');
+  var mMmult2 = new Monad({}, 'mMmult2');
+  var mMpause = new Monad(0, 'mMpause');
+  var mMpause2 = new Monad(0, 'mMpause2');
+  var mMtem = new Monad(0, 'mMtem');
+  var mMtem2 = new Monad(0, 'mMtem2');
+  var mMt = new Monad(0, 'mMt');
+  var mMtest = new Monad(0, 'mMtest');
+  var mMcursor = new Monad(0, 'mMcursor');
+  var mMgroup = new Monad('solo', 'mMgroup');
+  var mMgoals = new Monad(0, 'mMgoals');
+  var mMname = new Monad('', 'mMname');
+  var mMob = new Monad({}, 'mMob');
+  var mMsender = new Monad('nobody', 'mMsender');
+  var mMextra = new Monad('nothing', 'mMextra');
+  var mMextra2 = new Monad('nothing', 'mMextra2');
+  var mMsave = new Monad({ x: 'start' }, 'mMsave');
+  var mMindex = new Monad(0, 'mMindex');
+  var mMindex3 = new Monad(0, 'mMindex3');
+  var mMtemp = new Monad('temp', 'mMtemp');
+  var mMtemp2 = new Monad('temp2', 'mMtemp2');
+  var mMtemp3 = new Monad('temp3', 'mMtemp3');
+  var mMtemp4 = new Monad('temp4', 'mMtemp4');
+  var mMtemp5 = new Monad('temp5', 'mMtemp5');
+  var mMte = new Monad(0, 'mMte');
+  var mMid = new Monad('cow', 'mMid');
+  var mMhelper = new Monad('helper', 'mMhelper');
+  var mMtasks = new Monad([], 'mMtasks');
+  var mMid = new Monad(42, 'mMid');
+  var mMalert = new Monad('', 'mMalert');
+  var fibmon = new Monad([0, 1]);
+  var mMmax = new Monad(0, 'mMmax');
+  var mMfibSave = new Monad(0, 'mMfibSave');
+  var mMfibSave2 = new Monad(0, 'mMfibSave2');
+  var mMscoreChange = new Monad(0, 'mMscoreChange');
+  var mMcurrentRoll = new Monad([0, 0, 0, 0], 'mMcurrentRoll');
+  var mMfibs8 = M([0, 1], 'mMfibs8');
+  var mMallRolls = new Monad([[0, 0, 0, 0]], 'mMallRolls');
+  var mMcurrentList = new Monad([], 'mMcurrentList');
+  var mMtaskList = new Monad([], 'mMtaskList');
+  var mMcomments = new Monad([], 'mMcomments');
+  var mMcommentStr = new Monad([], 'mMcommentStr');
+  var mMtaskL = new Monad([], 'mMtaskL');
+  var mMsenderList = new Monad([], 'mMsenderList');
+  var mMsoloAlert = new Monad('', 'mMsoloAlert');
+  var mMe = new Monad('', 'mMe');
+  var mMgoals = M(0, 'mMgoals');
+  var mMt1 = new Monad(0, 'mMt1');
+  var mMt2 = new Monad(0, 'mMt2');
+  var mMt3 = new Monad('', 'mMt3');
+  var mMa = new Monad('waiting', 'mMa');
+  var mMx = new Monad([], 'mMx');
+  var mMy = new Monad('waiting', 'mMy');
+  var mMb = new Monad('waiting', 'mMb');
+  var mMc = new Monad('waiting', 'mMc');
+  var mMquad1 = new Monad('', 'mMquad1');
+  var mMquad2 = new Monad('', 'mMquad2');
+  var mMquad3 = new Monad('', 'mMquad3');
+  var m = new Monad(42, 'm');
+  var m1 = new Monad(1, 'm1');
+  var m2 = new Monad(2, 'm2');
+  var m3 = new Monad(3, 'm3');
+  var m4 = new Monad(4, 'm4');
+  var m5 = new Monad(5, 'm5');
+  var m6 = new Monad(6, 'm6');
+  var m7 = new Monad(7, 'm7');
+  var m8 = new Monad(8, 'm8');
+  var m9 = new Monad(9, 'm9');
+  var m10 = new Monad(10, 'm10');
+  var m11 = new Monad(11, 'm11');
+  var mMprime = new Monad([2], 'mMprime');
+  var mMprime2 = new Monad([2], 'mMprime2');
+  var mMprimes = new Monad([2], 'mMprimes');
+  var mMspreadsheet = new Monad([0, 0, 0, 0], 'mMspreadsheet');
+  var mMspreadsheet2 = new Monad([0, 0, 0, 0], 'mMspreadsheet2');
+  var mMdummy = new Monad(0, 'mMdummy');
+  var mMpf = new Monad(0, 'mMpf');
+  var mMpFib = new Monad([], 'mMpFib');
+  var RESULT = [0, 0, 0, 0];
+  var mMdisplayFibs = new Monad([0, 1], 'mMdisplayFibs');
+  var mMmembers = ret([], 'mMmembers');
+  var mMcount = new Monad(0, 'mMcount');
+  var mMcount2 = new Monad(0, 'mMcount2');
+  var mMcount3 = new Monad(0, 'mMcount3');
+  var mMcount4 = new Monad(0, 'mMcount4');
+  var updateGameFunc = new Monad('start', 'updateGameFunc');
+  var cleanup2Func = new Monad('start', 'cleanup2Func');
+  var mMres = new Monad(['','',''], 'mMres');
+  var mMquad4 = new Monad('', 'mMquad4');
+  var mMquad5 = new Monad('', 'mMquad5');
+  var mMquad6 = new Monad('', 'mMquad6');
+  var mMfactors3 = new Monad('', 'mMfactors3');
+  var mMfactors23 = new Monad('', 'mMfactors23');
+  var mMfactors3_b = new Monad('', 'mMfactors3_b');
+  var mMfactors4 = new Monad('', 'mMfactors4');
+  var mMfactors5 = new Monad('', 'mMfactors5');
+  var mMfactors6 = new Monad([[0], [1], [2]], 'mMfactors6');
+  var mMfactors7 = new Monad('', 'mMfactors7');
+  var mMfactors8 = new Monad('', 'mMfactors8');
+  var mMfactors6_b = new Monad([[0], [1], [2]], 'mMfactors6_b');
+  var mMfactors7_b = new Monad('', 'mMfactors7_b');
+  var mMfactors8_b = new Monad('', 'mMfactors8_b');
+  var mMfactors800 = new Monad('', 'mMfactors800');
+  var mMchange = new Monad(0, 'mMchange')
+  var mMchange2 = new Monad(0, 'mMchange2')
+  var mMchange3 = new Monad(0, 'mMchange3')
+  var backupMonad = new Monad('', 'backupMonad')
+  var mMshowRegister = new Monad('inline', 'mMshowRegister')
+
+
+var MonadItter = function MonadItter() {
+  this.p = function () {};
+  this.release = function () {
+    return this.p.apply(this, arguments);
+  };
+  this.bnd = function (func) {
+    return this.p = func;
+  };
+};
+
+  var MI = function MI() {
+    return new MonadItter();
+  };
+
+  var mMZ1 = MI();
+  var mMZ2 = MI();
+  var mMZ3 = MI();
+  var mMZ4 = MI();
+  var mMZ5 = MI();
+  var mMZ6 = MI();
+  var mMZ7 = MI();
+  var mMZ8 = MI();
+  var mMZ9 = MI();
+  var mMZ10 = MI();
+  var mMZ11 = MI();
+  var mMZ12 = MI();
+  var mMZ13 = MI();
+  var mMZ14 = MI();
+  var mMZ15 = MI();
+  var mMZ16 = MI();
+  var mMZ17 = MI();
+  var mMZ18 = MI();
+  var mMZ19 = MI();
+  var mMZ20 = MI();
+  var mMZ21 = MI();
+  var mMZ22 = MI();
+  var mMZ23 = MI();
+  var mMZ24 = MI();
+  var mMZ25 = MI();
+  var mMZ26 = MI();
+  var mMZ27 = MI();
+  var mMZ28 = MI();
+  var mMZ29 = MI();
+  var mMZ30 = MI();
+  var mMZ31 = MI();
+  var mMZ32 = MI();
+  var mMZ33 = MI();
+  var mMZ34 = MI();
+  var mMZ35 = MI();
+  var mMZ36 = MI();
+  var mMZ37 = MI();
+  var mMZ38 = MI();
+  var mMZ39 = MI();
+  var mMi3terPrime = MI();
+  var mMitterPrime4 = MI();
+  var mMitterPrime5 = MI();
+  var mMitterFib = MI();
+  var mMitterFib2 = MI();
+  var mMitterFib3 = MI();
+  var mMitterFib4 = MI();
+  var mMitterfib5 = MI();
+  var mMitterFib6 = MI();
+  var mMitterFib7 = MI();
+  var mMitterFib8 = MI();
+  var mMitterFib9 = MI();
+  var mMitterPrimeFibs = MI();
+  var mMitterPF = MI();
+  var mMitterPF2 = MI();
+  var style = ['inline', 'inline', 'inline', 'inline'];
+  var nums = [0,0,0,0];
+var mMdice = new Monad('block','mMdice');
+var mMrightPanel = new Monad('block','mMrightPanel');
+var mMrightPanel2 = new Monad('block','mMrightPanel2');
+var mMgameDiv2 = new Monad('block','mMgameDiv2');
+var mMgameDiv = new Monad('block','mMgameDiv');
+var mMlogin = new Monad('block','mMlogin');
+var mMlog1 = new Monad('block','mMlog1');
+var mMlog2 = new Monad('block','mMlog2');
+var mMtodoDiv = new Monad('block','mMtodoDiv');
+var mMchatDiv = new Monad('block','mMchatDiv');
+var mMcaptionDiv = new Monad('block','mMcaptionDiv');
+var mMtodoDiv = new Monad('block','mMtodoDiv');
+var mMtodo = new Monad('inline-block','mMtodo');
+var mMchat = new Monad('inline-block','mMchatDiv');
+var mMcaption = new Monad('block','mMcaptionDiv');
+var mMtodo = new Monad('inline','mMtodoDiv');
+var mMgame = new Monad('block','mMgameDiv');
+var mMerror = new Monad('','mMerror');
+
+var mMob = new Monad (0, 'mMob')
+var pMname = new Monad('1v65n$%pqw3*@#9', 'pMname');
+var pMoldName = new Monad('1v65n$%pqw3*@#9', 'pMoldName');
+var pMbackupName = new Monad('backup', 'pMbackupName'); 
+var pMpassword = new Monad('password', 'pMpassword');
+var pMcombo = new Monad('1v65n$%pqw3*@#9<o>none', 'pMcombo');
+var pMgroup = new Monad('solo', 'pMgroup');
+var pMscore = new Monad(0, 'pMscore');
+var pMgoals = new Monad(0, 'pMgoals');
+var pMnums = new Monad([8,8,8,8], 'pMnums');
+var pMindex = new Monad(0, 'pMindex');
+var pMdata = new Monad([], 'pMdata');
+var pMelms = new Monad( [0,0,0,0], 'pMelms' );
+var pMstyle = new Monad( ['inline','inline','inline','inline'], 'pMstyle' );
+var pMdisplay = new Monad([], 'pMdisplay');
+var pMnewName = new Monad('', 'pMnewName');
+
+var mMnums = new Monad([0,0,0,0], 'mMnums');
+var mMnumEls = new Monad([], 'mMnumEls');
+var mMstyle = new Monad(['inline', 'inline', 'inline', 'inline'], 'mMstyle')
+
+var worker = new Worker("worker.js");
+var workerB = new Worker("workerB.js");
+var workerC = new Worker("workerC.js");
+var workerD = new Worker("workerD.js");
+var workerE = new Worker("workerE.js");
+var workerF = new Worker("workerF.js");
+
 
 function MonadEvents(z = 'default', ID = 'temp') {
   var _this = this;
@@ -90,7 +374,6 @@ function MonadEvents(z = 'default', ID = 'temp') {
   };
   this.stream = new EventEmitter();
   this.stream.on(1, v => _this.bnd(v[0], ...[1]));
-  this.stream.on(2, v => _this.ret(v));
 };
 
 var pMop = new Monad (0, 'pMop');
@@ -122,35 +405,9 @@ function get2 (m) {
   let v = m.bnd('x => x');
   return v;
 }
-var mMob = new Monad (0, 'mMob')
-var pMname = new Monad('1v65n$%pqw3*@#9', 'pMname');
-var pMoldName = new Monad('1v65n$%pqw3*@#9', 'pMoldName');
-var pMbackupName = new Monad('backup', 'pMbackupName'); 
-var pMpassword = new Monad('password', 'pMpassword');
-var pMcombo = new Monad('1v65n$%pqw3*@#9<o>none', 'pMcombo');
-var pMgroup = new Monad('solo', 'pMgroup');
-var pMscore = new Monad(0, 'pMscore');
-var pMgoals = new Monad(0, 'pMgoals');
-var pMnums = new Monad([8,8,8,8], 'pMnums');
-var pMindex = new Monad(0, 'pMindex');
-var pMdata = new Monad([], 'pMdata');
-var pMelms = new Monad( [0,0,0,0], 'pMelms' );
-var pMstyle = new Monad( ['inline','inline','inline','inline'], 'pMstyle' );
-var pMdisplay = new Monad([], 'pMdisplay');
-var pMnewName = new Monad('', 'pMnewName');
-
-var mMnums = new Monad([0,0,0,0], 'mMnums');
-var mMnumEls = new Monad([], 'mMnumEls');
-var mMstyle = new Monad(['inline', 'inline', 'inline', 'inline'], 'mMstyle')
-
 var a = 3;
 var b = 4;
 var c = a + b;
-
-function ret(v, id = 'temp') {
-  window[id] = new Monad(v, id);
-  return window[id];
-}
 
 var equals = function equals (mon1, mon2) {
   if (mon1.id === mon2.id && get(mon1) === get(mon2)) return true;
@@ -159,16 +416,8 @@ var equals = function equals (mon1, mon2) {
 
 var mMtemp5 = new Monad(0, 'mMtemp5')
 
-  function add (x, b) {
-    return ret(parseInt(x,10) + parseInt(b,10));
-  };
-
   function addStr (x, str) {
       return ret(x + str);
-  };
-
-  function cube (v) {
-      return ret(v * v * v);
   };
 
 var aD = function (x, b, id = 'mQfred') {
@@ -444,13 +693,6 @@ function factors_state3(a) {
   return result;
 }
 
-var worker = new Worker("worker.js");
-var workerB = new Worker("workerB.js");
-var workerC = new Worker("workerC.js");
-var workerD = new Worker("workerD.js");
-var workerE = new Worker("workerE.js");
-var workerF = new Worker("workerF.js");
-
 function primes_state(v) {
   if (v[0] == "CE#$42" && Array.isArray(v[1]) && typeof v[2] === 'number' ) {
     console.log('In main thread Daddy-Oh and v is ', v );
@@ -479,11 +721,11 @@ function message_state(v) {
 var messageMonad = new MonadState('messageMonad', [], message_state);
 
 var mMsetArchive = new Monad([], 'mMsetArchive');
-mMsetArchive.ret([]);
+retrn(mMsetArchive, []);
 
 function clean(x, mon) {
   if (mon === void 0) { mon = mMtemp; }
-  mon.ret([]);
+  retrn(mon, []);
 };
 
 function pFib(fibs, primes) {
@@ -500,16 +742,6 @@ function pFib(fibs, primes) {
 var CURRENT_ROLL = [];
 var emit;
 var data$;
-
-var MonadItter = function MonadItter() {
-  this.p = function () {};
-  this.release = function () {
-    return this.p.apply(this, arguments);
-  };
-  this.bnd = function (func) {
-    return this.p = func;
-  };
-};
 
 function rang(n, m) {
   return Array.from(new Array(m - n), function (x, i) { return i + n; });
@@ -555,256 +787,6 @@ function primes(n, ar) {
     return ret(a.map(function (v) { return v * 1 + b * 1; }), 'sally');
   };
 
-  var M = function M(a, b) {
-    var mon = new Monad(a, b);
-    return mon;
-  };
-
-  var MI = function MI() {
-    return new MonadItter();
-  };
-
-  var count = 0;
-  var mM1 = M([], 'mM1');
-  var mMbound = M(0, 'mMbound');
-  var mM2 = M(0, 'mM2');
-  var mM4 = M([], 'mM4');
-  var mM5 = M(0, 'mM5');
-  var mM6 = M('', 'mM6');
-  var mM7 = M(0, 'mM7');
-  var mM9 = M(3, 'mM9');
-  var mM10 = M(4, 'mM10');
-  var mM11 = M(5, 'mM11');
-  var mM12 = M(7, 'mM12');
-  var mM13 = M(12, 'mM13');
-  var mM14 = M(12, 'mM14');
-  var mM15 = M(12, 'mM15');
-  var mM16 = M(0, 'mM16');
-  var mM17 = M(0, 'mM17');
-  var mM18 = M(0, 'mM18');
-  var mM19 = M('waiting', 'mM19');
-  var mM20 = M(0, 'mM20');
-  var mM21 = M('Yes', 'mM21');
-  var mM22 = M(0, 'mM22');
-  var mM23 = M([0, 1, 1], 'mM23');
-  var mM24 = M([[2, 3], 4, 9], 'mM24');
-  var mM25 = M(3, 'mM25');
-  var mM26 = M(0, 'mM26');
-  var mM27 = M(0, 'mM27');
-  var mM28 = M([], 'mM28');
-  var mM29 = M([], 'mM29');
-  var mM30 = M(0, 'mM30');
-  var mM31 = M(0, 'mM31');
-  var mM32 = M(0, 'mM32');
-  var mM33 = M(0, 'mM33');
-  var mM34 = M(0, 'mM34');
-  var mM35 = M(3, 'mM35');
-  var mM36 = M('', 'mM36');
-  var mM37 = M('', 'mM37');
-  var mM38 = M(0, 'mM38');
-  var mM39 = M(0, 'mM39');
-  var mMscbd = M([], 'mMscbd');
-  var mMmessages = M([], 'mMmessages');
-  var mMscoreboard = M([], 'mMscoreboard');
-  var mMmsg = M([], 'mMmsg');
-  var mMgoals2 = M('', 'mMgoals2');
-  var mMname = M('', 'mMname');
-  var mMar = M([1, 2, 3, 4, 5], 'mMar');
-  var mMar2 = M([], 'mMar2');
-  var mMscores = M('', 'mMscores');
-  var mMprefix = M('', 'mMprefix');
-  var mMfib = M([0, 1], 'mMfib');
-  var mMfib2 = M([0, 1], 'mMfib2');
-  var mMmain = M(null, 'mMmain');
-  var mMcalc = M(null, 'mMcalc');
-  var mMadd = new Monad(0, 'mMadd');
-  var mMunit = new Monad(0, 'mMunit');
-  var mMprod = new Monad(0, 'mMprod');
-  var mMmult = new Monad({}, 'mMmult');
-  var mMmult2 = new Monad({}, 'mMmult2');
-  var mMpause = new Monad(0, 'mMpause');
-  var mMpause2 = new Monad(0, 'mMpause2');
-  var mMtem = new Monad(0, 'mMtem');
-  var mMtem2 = new Monad(0, 'mMtem2');
-  var mMt = new Monad(0, 'mMt');
-  var mMtest = new Monad(0, 'mMtest');
-  var mMcursor = new Monad(0, 'mMcursor');
-  var mMgroup = new Monad('solo', 'mMgroup');
-  var mMgoals = new Monad(0, 'mMgoals');
-  var mMname = new Monad('', 'mMname');
-  var mMob = new Monad({}, 'mMob');
-  var mMsender = new Monad('nobody', 'mMsender');
-  var mMextra = new Monad('nothing', 'mMextra');
-  var mMextra2 = new Monad('nothing', 'mMextra2');
-  var mMsave = new Monad({ x: 'start' }, 'mMsave');
-  var mMindex = new Monad(0, 'mMindex');
-  var mMindex3 = new Monad(0, 'mMindex3');
-  var mMtemp = new Monad('temp', 'mMtemp');
-  var mMtemp2 = new Monad('temp2', 'mMtemp2');
-  var mMtemp3 = new Monad('temp3', 'mMtemp3');
-  var mMtemp4 = new Monad('temp4', 'mMtemp4');
-  var mMtemp5 = new Monad('temp5', 'mMtemp5');
-  var mMte = new Monad(0, 'mMte');
-  var mMid = new Monad('cow', 'mMid');
-  var mMhelper = new Monad('helper', 'mMhelper');
-  var mMtasks = new Monad([], 'mMtasks');
-  var mMid = new Monad(42, 'mMid');
-  var mMalert = new Monad('', 'mMalert');
-  var fibmon = new Monad([0, 1]);
-  var mMmax = new Monad(0, 'mMmax');
-  var mMfibSave = new Monad(0, 'mMfibSave');
-  var mMfibSave2 = new Monad(0, 'mMfibSave2');
-  var mMscoreChange = new Monad(0, 'mMscoreChange');
-  var mMcurrentRoll = new Monad([0, 0, 0, 0], 'mMcurrentRoll');
-  var mMfibs8 = M([0, 1], 'mMfibs8');
-  var mMallRolls = new Monad([[0, 0, 0, 0]], 'mMallRolls');
-  var mMcurrentList = new Monad([], 'mMcurrentList');
-  var mMtaskList = new Monad([], 'mMtaskList');
-  var mMcomments = new Monad([], 'mMcomments');
-  var mMcommentStr = new Monad([], 'mMcommentStr');
-  var mMtaskL = new Monad([], 'mMtaskL');
-  var mMsenderList = new Monad([], 'mMsenderList');
-  var mMsoloAlert = new Monad('', 'mMsoloAlert');
-  var mMe = new Monad('', 'mMe');
-  var mMgoals = M(0, 'mMgoals');
-  var mMt1 = new Monad(0, 'mMt1');
-  var mMt2 = new Monad(0, 'mMt2');
-  var mMt3 = new Monad('', 'mMt3');
-  var mMa = new Monad('waiting', 'mMa');
-  var mMx = new Monad([], 'mMx');
-  var mMy = new Monad('waiting', 'mMy');
-  var mMb = new Monad('waiting', 'mMb');
-  var mMc = new Monad('waiting', 'mMc');
-  var mMquad1 = new Monad('', 'mMquad1');
-  var mMquad2 = new Monad('', 'mMquad2');
-  var mMquad3 = new Monad('', 'mMquad3');
-  var m = new Monad(42, 'm');
-  var m1 = new Monad(1, 'm1');
-  var m2 = new Monad(2, 'm2');
-  var m3 = new Monad(3, 'm3');
-  var m4 = new Monad(4, 'm4');
-  var m5 = new Monad(5, 'm5');
-  var m6 = new Monad(6, 'm6');
-  var m7 = new Monad(7, 'm7');
-  var m8 = new Monad(8, 'm8');
-  var m9 = new Monad(9, 'm9');
-  var m10 = new Monad(10, 'm10');
-  var m11 = new Monad(11, 'm11');
-  var mMprime = new Monad([2], 'mMprime');
-  var mMprime2 = new Monad([2], 'mMprime2');
-  var mMprimes = new Monad([2], 'mMprimes');
-  var mMspreadsheet = new Monad([0, 0, 0, 0], 'mMspreadsheet');
-  var mMspreadsheet2 = new Monad([0, 0, 0, 0], 'mMspreadsheet2');
-  var mMdummy = new Monad(0, 'mMdummy');
-  var mMpf = new Monad(0, 'mMpf');
-  var mMpFib = new Monad([], 'mMpFib');
-  var RESULT = [0, 0, 0, 0];
-  var mMdisplayFibs = new Monad([0, 1], 'mMdisplayFibs');
-  var mMmembers = ret([], 'mMmembers');
-  var mMcount = new Monad(0, 'mMcount');
-  var mMcount2 = new Monad(0, 'mMcount2');
-  var mMcount3 = new Monad(0, 'mMcount3');
-  var mMcount4 = new Monad(0, 'mMcount4');
-  var updateGameFunc = new Monad('start', 'updateGameFunc');
-  var cleanup2Func = new Monad('start', 'cleanup2Func');
-  var mMres = new Monad(['','',''], 'mMres');
-  var mMquad4 = new Monad('', 'mMquad4');
-  var mMquad5 = new Monad('', 'mMquad5');
-  var mMquad6 = new Monad('', 'mMquad6');
-  var mMfactors3 = new Monad('', 'mMfactors3');
-  var mMfactors23 = new Monad('', 'mMfactors23');
-  var mMfactors3_b = new Monad('', 'mMfactors3_b');
-  var mMfactors4 = new Monad('', 'mMfactors4');
-  var mMfactors5 = new Monad('', 'mMfactors5');
-  var mMfactors6 = new Monad([[0], [1], [2]], 'mMfactors6');
-  var mMfactors7 = new Monad('', 'mMfactors7');
-  var mMfactors8 = new Monad('', 'mMfactors8');
-  var mMfactors6_b = new Monad([[0], [1], [2]], 'mMfactors6_b');
-  var mMfactors7_b = new Monad('', 'mMfactors7_b');
-  var mMfactors8_b = new Monad('', 'mMfactors8_b');
-  var mMfactors800 = new Monad('', 'mMfactors800');
-  var mMchange = new Monad(0, 'mMchange')
-  var mMchange2 = new Monad(0, 'mMchange2')
-  var mMchange3 = new Monad(0, 'mMchange3')
-  var backupMonad = new Monad('', 'backupMonad')
-  var mMshowRegister = new Monad('inline', 'mMshowRegister')
-
-
-  var mMZ1 = MI();
-  var mMZ2 = MI();
-  var mMZ3 = MI();
-  var mMZ4 = MI();
-  var mMZ5 = MI();
-  var mMZ6 = MI();
-  var mMZ7 = MI();
-  var mMZ8 = MI();
-  var mMZ9 = MI();
-  var mMZ10 = MI();
-  var mMZ11 = MI();
-  var mMZ12 = MI();
-  var mMZ13 = MI();
-  var mMZ14 = MI();
-  var mMZ15 = MI();
-  var mMZ16 = MI();
-  var mMZ17 = MI();
-  var mMZ18 = MI();
-  var mMZ19 = MI();
-  var mMZ20 = MI();
-  var mMZ21 = MI();
-  var mMZ22 = MI();
-  var mMZ23 = MI();
-  var mMZ24 = MI();
-  var mMZ25 = MI();
-  var mMZ26 = MI();
-  var mMZ27 = MI();
-  var mMZ28 = MI();
-  var mMZ29 = MI();
-  var mMZ30 = MI();
-  var mMZ31 = MI();
-  var mMZ32 = MI();
-  var mMZ33 = MI();
-  var mMZ34 = MI();
-  var mMZ35 = MI();
-  var mMZ36 = MI();
-  var mMZ37 = MI();
-  var mMZ38 = MI();
-  var mMZ39 = MI();
-  var mMi3terPrime = MI();
-  var mMitterPrime4 = MI();
-  var mMitterPrime5 = MI();
-  var mMitterFib = MI();
-  var mMitterFib2 = MI();
-  var mMitterFib3 = MI();
-  var mMitterFib4 = MI();
-  var mMitterfib5 = MI();
-  var mMitterFib6 = MI();
-  var mMitterFib7 = MI();
-  var mMitterFib8 = MI();
-  var mMitterFib9 = MI();
-  var mMitterPrimeFibs = MI();
-  var mMitterPF = MI();
-  var mMitterPF2 = MI();
-  var style = ['inline', 'inline', 'inline', 'inline'];
-  var nums = [0,0,0,0];
-var mMdice = new Monad('block','mMdice');
-var mMrightPanel = new Monad('block','mMrightPanel');
-var mMrightPanel2 = new Monad('block','mMrightPanel2');
-var mMgameDiv2 = new Monad('block','mMgameDiv2');
-var mMgameDiv = new Monad('block','mMgameDiv');
-var mMlogin = new Monad('block','mMlogin');
-var mMlog1 = new Monad('block','mMlog1');
-var mMlog2 = new Monad('block','mMlog2');
-var mMtodoDiv = new Monad('block','mMtodoDiv');
-var mMchatDiv = new Monad('block','mMchatDiv');
-var mMcaptionDiv = new Monad('block','mMcaptionDiv');
-var mMtodoDiv = new Monad('block','mMtodoDiv');
-var mMtodo = new Monad('inline-block','mMtodo');
-var mMchat = new Monad('inline-block','mMchatDiv');
-var mMcaption = new Monad('block','mMcaptionDiv');
-var mMtodo = new Monad('inline','mMtodoDiv');
-var mMgame = new Monad('block','mMgameDiv');
-var mMerror = new Monad('','mMerror');
-
   function numProtect (x) {return (new Number (x))*1; };
 
   var qS1 = function qS1(a, b, c) {
@@ -847,7 +829,7 @@ var mMerror = new Monad('','mMerror');
   };
 
   var split = function split(x, mon) {
-      return mon.ret(x.split(','));
+      return retrn(mon, x.split(','));
   };
   var stringify = function stringify(ob) {
       var str = ob.task + ',' + ob.color + ',' + ob.textdecoration + ',' + ob.checked.tostring() +
@@ -860,7 +842,7 @@ var mMerror = new Monad('','mMerror');
       if (x.length > 4) {
           s = x + ',' + str;
       }
-      return mon.ret(s);
+      return retrn(mon, s);
   };
   var intersection = function (a, b, mon) {
       if (mon === void 0) { mon = mMtemp5; }
@@ -874,7 +856,7 @@ var mMerror = new Monad('','mMerror');
               }
           }
       }
-      return mon.ret(ar3);
+      return retrn(mon, ar3);
   };
 
 
@@ -910,15 +892,7 @@ function calc (a, op, b) {
     return s;
   }
 
-  var equals2 = function equals(x, mon1, mon2) {
-      if (mon1.id === mon2.id && get(mon1) === get(mon2)) {
-          ret.ret('true');
-      }
-      else
-          mon3.ret('false');
-      return ret(x, '$temp3');
-  };
-  var pause = function (x, t, mon2) {
+   var pause = function (x, t, mon2) {
       var time = t * 1000;
       setTimeout(function () {
           mon2.release();
@@ -1009,9 +983,6 @@ function calc (a, op, b) {
   var double = function double(v, mon) {
       return ret(v + v);
   };
-  var square = function square(v) {
-      return ret(v * v);
-  };
 
   function mult(x, y) {
     return ret(x * y);
@@ -1068,6 +1039,7 @@ var getIndex2 = function getIndex2(e) {
 };
 var tempstyle = { display: 'inline' };
 var tempstyle2 = { display: 'none' };
+/*
 var timeout = function timeout(x, t, m, args) {
     setTimeout(function () {
         m.bnd.apply(m, args);
@@ -1080,7 +1052,7 @@ var timeout2 = function timeout(x, t, m, args) {
     }, t * 1000);
     return mMZ9.bnd(function () { return m.bnd.apply(m, args); });
 };
-
+*/
 var mMdisplay = new Monad('display', 'mMdisplay');
 
 function refresh () {
@@ -1088,41 +1060,6 @@ function refresh () {
     document.location.reload(false);
     }, 4000);
 };
-
-var MonadAcc = function MonadAcc(z = 0, g = 'generic') {
-  var _this = this;
-  this.x = z;
-  this.id = g;
-  this.bnd = function(func, ...args) {
-    return func(this.x, ...args);
-  }
-  this.reset = function () {
-    return window[this.id] = new MonadAcc('', this.id);
-  };
-  this.ret = function (a) {
-    var str = _this.x + a;
-    return window[_this.id] = new MonadAcc(str, _this.id);
-  };
-};
-
-var acc1 = new MonadAcc('', 'acc1');
-
-console.log('Test of MonadAcc, a logging monad:\n ',
-acc1.reset().ret('The square root of the sum of ')
-.bnd(() => m.ret(3).bnd(mult,100)
-.bnd(acc1.ret)).ret(' squared and ')
-.bnd(() => m2.ret(0).bnd(add,4).bnd(mult,100)
-.bnd(acc1.ret))
-.ret(' squared is ').bnd(() => m3.ret(m.x * m.x + m2.x * m2.x).bnd(sqroot).bnd(acc1.ret)).x);
-
-function acc (x, y, str) {
-  return window[str] = new MonadAcc(x + y, str);}
-
-console.log('.');
-console.log('.');
-console.log('.');
-console.log('.');
-console.log('.');
 
 function ret3(v, id = 'generic') {
     window[id] = new MonadEr(v, id, []);
@@ -1137,7 +1074,6 @@ function clean3 (x, id) {
   window[id] = new MonadEr(x, id, []);
   return window[id];
 }
-
 
 var a = 'jack'
 var b = '0/"andy"'
@@ -1214,7 +1150,7 @@ function MonadEr (val, ID, er = []) {
     return window[this.id];
   }
 };
-
+/*
 console.log('.');
 console.log('.');
 console.log('.');
@@ -1251,19 +1187,19 @@ console.log('.');
 ret(5,'a');ret(5,'b');ret(5,'c');ret(5,'d');ret(5,'e');ret(5,'f');ret(5,'g')
 console.log('Current values of the monads:',a.x,b.x,c.x,d.x,e.x,f.x,g.x);
 console.log('.');
-console.log("ret(0,'a').bnd(add,3,'$b').bnd(mult,100,'$c').bnd(v1 => d.ret(v1*v1)");
-console.log(".bnd(add, v1 - d.x + 100,'$e').bnd(v2 => f.ret(v2*v2)");
+console.log("ret(0,'a').bnd(add,3,'$b').bnd(mult,100,'$c').bnd(v1 => d, v1*v1)");
+console.log(".bnd(add, v1 - d.x + 100,'$e').bnd(v2 => f, v2*v2)");
 console.log(".bnd(add, d.x,'$g').bnd(sqroot,'$f')");
 console.log(".bnd(v3 => console.log('The sum of',v1,'squared and',v2,'squared is',v3) )" );
-ret(0,'a').bnd(add,3,'$b').bnd(mult,100,'$c').bnd(v1 => d.ret(v1*v1)
-.bnd(add, v1 - d.x + 100,'$e').bnd(v2 => f.ret(v2*v2).bnd(add, d.x,'$g').bnd(sqroot,'$f')
+ret(0,'a').bnd(add,3,'$b').bnd(mult,100,'$c').bnd(v1 => d, v1*v1)
+.bnd(add, v1 - d.x + 100,'$e').bnd(v2 => f, v2*v2).bnd(add, d.x,'$g').bnd(sqroot,'$f')
 .bnd(v3 => console.log('The square root of the sum of',v1,'squared and',v2,'squared is',v3))));
 console.log('.');
 console.log('Current values of the monads:', a.x,b.x,c.x,d.x,e.x,f.x,g.x);
 var testArray = [a.x,b.x,c.x,d.x,e.x,f.x,g.x];
 console.log('testArray:',testArray.join(', '));
-console.log("a.ret(7); b.ret(7); c.ret(7); d.ret(7); e.ret(7); f.ret(7); g.ret(7);");
-a.ret(7); b.ret(7); c.ret(7); d.ret(7); e.ret(7); f.ret(7); g.ret(7);
+console.log("a, 7); b, 7); c, 7); d, 7); e, 7); f, 7); g, 7);");
+a, 7); b, 7); c, 7); d, 7); e, 7); f, 7); g, 7);
 console.log('Current values of the monads:',a.x,b.x,c.x,d.x,e.x,f.x,g.x);
 console.log("'testArray:',testArray.join(', ')");
 console.log('testArray:',testArray.join(', '));
@@ -1275,7 +1211,7 @@ console.log('.');
 console.log('When monads call their ret() methods, new instances of Monad are created.' );
 console.log('.');
 console.log('.');
-
+*/
 
 // ***************************************************************************
 
@@ -1314,7 +1250,7 @@ function monadConstructor (v,b) {
   return c;
 };
 
-/* function MonadState2(g, state) {
+ function MonadState2(g, state) {
   this.id = g;
   this.s = state;
   this.c = new EventEmitter();
@@ -1323,7 +1259,7 @@ function monadConstructor (v,b) {
     return window[this.id] = new MonadState(this.id, a);
   };
   this.c.on(1, st => {
-    mMindex2.ret(mMindex2.x + 1);
+    retrn( mMindex2,(mMindex2.x + 1) );
     var a = this.s.slice();
     a.splice(mMindex2.x, 0, st);
     window[this.id] = new MonadState2(this.id, a);
@@ -1355,12 +1291,12 @@ function mMstream2Driver () {
     stop: () => { mMstream.removeAllListeners() }
   });
 };
-*/
+
 
 // ***************************************************************************
 
 function oF (func, mon) {
-  return mon.bnd(func);
+  return bind(mon,func);
 };
 
 oF ( cube, mM25 );
@@ -1391,7 +1327,7 @@ eM2.bnd(v => ['Hello girls', 'Here is the value of eM2', v, 256000 - 245997, 'yo
 //eM2.emitEvent(1,[888]);
 //console.log(eM2.emitEvent(1,[444]));
 //console.log('2()()()()()()() Here is eM2.x:', eM2.x);
-// eM3.on('3', (x,y,z) => m.ret(z*z*z).bnd((a) => console.log(a,x,y)))
+// eM3.on('3', (x,y,z) => m, z*z*z).bnd((a) => console.log(a,x,y)))
 eM3.bnd(v => ret(['em3.x squared is', v*v, 'Here are more numbers:', 23, 44, 3]));
 var a = 'a';
 console.log('3()()()()()()() Here is eM2.x:', eM2.x);
@@ -1825,7 +1761,7 @@ function score(result) {
     var scor = sco % 5 === 0 ? sco + 5 : sco;
     var goals = gameMonad.fetch1();
     if (scor === 25 && gameMonad.fetch1() === "2") {
-        mMindex.ret(0);
+        uetrn(mMindex,0);
         gameMonad = new MonadState('gameMonad', [[[0,0,0,[],[0,0,0,0]],[0,0,0,[][0,0,0,0]]],0]);
         socket.send(`CE#$42,${pMgroup.x},${pMname.x}`);
         newRoll(0,0);

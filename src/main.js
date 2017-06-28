@@ -7,38 +7,42 @@ console.log('If you can read this you are in main.js <@><@><@><@><@><@><@><@>');
 var textA = h('textarea', 'You bet!' );
 var formA = h('form#horses', 'You bet!' );
 
-socket.addEventListener('message', function (event) {
-  console.log('<$><$><$><$><$><$><$><$><$> $$ Message from server: event.data ', event.data);
-});
+  socket.addEventListener('message', function (event) {
+    console.log('<$><$><$><$><$><$><$><$><$> $$ Message from server: event.data ', event.data);
+  });
 
-socket.onopen = function login () {
-  var v = rand();
-  var v2 = rand();
-  mMshowRegister.ret('inline');
-  pMname.ret(v);
-  pMoldName.ret(v);
-  pMgroup.ret('solo');
-  var combo = v + '<o>' + v2;
-  socket.send('CC#$42' + combo );
-  pMcombo.ret(combo);
-  pMclicked.ret([]);
-  socket.send(`GZ#$42,solo,${v}`);
-};
+  socket.onopen = function login () {
+    var v = rand();
+    var v2 = rand();
+    retrn(mMshowRegister,'inline');
+    retrn(pMname,v);
+    retrn(pMoldName,v);
+    retrn(pMgroup,'solo');
+    var combo = v + '<o>' + v2;
+    socket.send('CC#$42' + combo );
+    retrn(pMcombo,combo);
+    retrn(pMclicked,[]);
+    socket.send(`GZ#$42,solo,${v}`);
+  };
 
-function main(sources) {
- console.log('0^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ got this far');
+  function main(sources) {
+    console.log('0^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ got this far');
 
- const messages$ = sources.WS.map( e => {
-   console.log(e);
-   mMtem.ret(e.data.split(',')).bnd( v => {
+  const messages$ = sources.WS.map( e => {
+    console.log('*********** INCOMING MESSAGE ***************************************');
+    console.log(e);
+    e.data.split(',').map( v => {
+    console.log(v);
     var group = v[1]
     var sender =  v[2];
     var extra = v[3];
     var extra2 = v[4];
-    console.log('Websockets e.data.split message v: ', v );
+    console.log('********************************************************************' );
+
     mMZ10.bnd( () => {
       gameMonad.run([v[7], v[8], 0, [], [v[3], v[4], v[5], v[6]]]);
     });
+
     mMZ11.bnd( () => {
       console.log('The message arrived', messages);
       var message = v.slice(3,v.length).join(', ');
@@ -46,14 +50,16 @@ function main(sources) {
       messages.unshift(h('span', str ), h('br'));
       console.log('The message was added to messages', messages);
     });
+
     mMZ12.bnd( () => {
-      mMgoals2.ret('The winner is ' + v[2]);
-      setTimeout( function () {mMgoals2.ret('')},7000);
+      retrn(mMgoals2,'The winner is ' + v[2]);
+      setTimeout( function () {retrn(mMgoals2,'')},7000);
     });
     mMZ13.bnd( () => {
-      mMgoals2.ret('A player named ' + v[2] +
+      retrn(mMgoals2,'A player named ' + v[2] +
         ' is currently logged in. Page will refresh in 4 seconds.')
       refresh() });
+
     mMZ14.bnd( () => {
       if (v[3] === "no file" || typeof v[3] == 'undefined') {
         console.log('"no file" or "undefined" arrived at mMZ17');
@@ -65,6 +71,7 @@ function main(sources) {
         taskMonad.run2(str);
       }
     });
+
     mMZ15.bnd( () => {
       var ar = [];
       var g = e.data.split('<br>')
@@ -77,29 +84,32 @@ function main(sources) {
 
     mMZ16.bnd( () => {                          // Prefix ZZ#$42
       var a = extra.replace(/(\r\n|\n|\r)/gm,"");   // Remove newlines
-      mMcomments.ret(commentMonad.run(extra));
+      retrn(mMcomments,commentMonad.run(extra));
     });
 
     mMZ17.bnd( () => {                          // Prefix RR#$42
       var str = mMcommentStr.x;
+
       if (extra2 === "code1") {
-        mMregister.ret('The registered name ' + extra + ' and the associated password were recognized. ' ); 
-        socket.send('GZ#$42,' + pMgroup.x + ',' + pMname.x + ',<@>' + str);
-      } 
-      if (extra2 === "code2") {
-        mMregister.ret('The new name ' + extra + ' was registered.' );  
+        retrn(mMregister,'The registered name ' + extra + ' and the associated password were recognized. ' ); 
         socket.send('GZ#$42,' + pMgroup.x + ',' + pMname.x + ',<@>' + str);
       }
+
+      if (extra2 === "code2") {
+        retrn(mMregister,'The new name ' + extra + ' was registered.' );  
+        socket.send('GZ#$42,' + pMgroup.x + ',' + pMname.x + ',<@>' + str);
+      }
+
       if (extra2 === "code3") {
-        pMname.ret(sender);
-        mMregister.ret('The password you entered is not the password that is registered for ' + extra + '.' ); 
+        retrn(pMname,sender);
+        retrn(mMregister,'The password you entered is not the password that is registered for ' + extra + '.' ); 
       }
     });
 
     mMZ19.bnd( () => {                          // Prefix ZN#$42  NEW COMMENT
       var a = commentMonad.s[0];
       var b = a + '<@>' + sender + '<o>' + extra + '<@>'
-      mMcomments.ret(commentMonad.run(b));
+      retrn(mMcomments,commentMonad.run(b));
     });
 
     mMZ20.bnd( () => {                 
@@ -107,7 +117,7 @@ function main(sources) {
       .map(v => v = v.join('<o>'));
       ar[extra] = extra2;   // The comment at index extra becomes extra2 
       var str = ar.join('<@>');
-      mMcomments.ret(commentMonad.run(str));
+      retrn(mMcomments,commentMonad.run(str));
     });
 
     mMZ21.bnd( () => {                          // Prefix ZD#$42  DELETE A COMMENT
@@ -115,88 +125,88 @@ function main(sources) {
       a.splice(extra,1);                        // Remove a comment.
       var b = a.map(v => v.join('<o>'));        // re-stringify the comments.
       var c = b.join('<@>'); 
-      mMcomments.ret(commentMonad.run(c));      // Re-set the div ids and update the display.
+      retrn(mMcomments,commentMonad.run(c));      // Re-set the div ids and update the display.
     });
-
   })
-  ret(e.data.split(',')[0])
-  .bnd(next, 'CA#$42', mMZ10)
-  .bnd(next, 'CD#$42', mMZ11)
-  .bnd(next, 'CE#$42', mMZ12)
-  .bnd(next, 'EE#$42', mMZ13)
-  .bnd(next, 'DD#$42', mMZ14)
-  .bnd(next, 'NN#$42', mMZ15)
-  .bnd(next, 'ZZ#$42', mMZ16)
-  .bnd(next, 'RR#$42', mMZ17)
-  .bnd(next, 'WW#$42', mMZ18)
-  .bnd(next, 'ZN#$42', mMZ19)
-  .bnd(next, 'ZE#$42', mMZ20)
-  .bnd(next, 'ZD#$42', mMZ21)
+
+  bind(ret(e.data.split(',')[0]), next, 'CA#$42', mMZ10)
+  (temp, next, 'CD#$42', mMZ11)
+  (temp, next, 'CE#$42', mMZ12)
+  (temp, next, 'EE#$42', mMZ13)
+  (temp, next, 'DD#$42', mMZ14)
+  (temp, next, 'NN#$42', mMZ15)
+  (temp, next, 'ZZ#$42', mMZ16)
+  (temp, next, 'RR#$42', mMZ17)
+  (temp, next, 'WW#$42', mMZ18)
+  (temp, next, 'ZN#$42', mMZ19)
+  (temp, next, 'ZE#$42', mMZ20)
+  (temp, next, 'ZD#$42', mMZ21)
   });
 
- console.log('1^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ got this far');
-function next(x, y, instance, z) {
-  if (x == y) {
+  console.log('1^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ got this far');
+
+  function next(x, y, instance, z) {
+    if (x == y) {
       instance.release(z);
-  }
-  return ret(x);
-};
+    }
+    return ret(x);
+  };
 
-var comment$ = sources.DOM.select('#comment').events('keydown');
+  var comment$ = sources.DOM.select('#comment').events('keydown');
 
-var commentAction$ = comment$.map(e => {
-  if (e.keyCode == 13) {
-    var com = e.target.value.replace(/,/g, "<<>>");
-    var comm = com.replace(/(\r\n|\n|\r)/gm,"");   // Remove newlines
-    socket.send(`GN#$42,${pMgroup.x},${pMname.x},<@>${pMname.x}<o>${comm}<@>`);
-  }
-});
+  var commentAction$ = comment$.map(e => {
+    if (e.keyCode == 13) {
+      var com = e.target.value.replace(/,/g, "<<>>");
+      var comm = com.replace(/(\r\n|\n|\r)/gm,"");   // Remove newlines
+      socket.send(`GN#$42,${pMgroup.x},${pMname.x},<@>${pMname.x}<o>${comm}<@>`);
+    }
+  });
 
-var deleteClick2$ = sources.DOM
+  var deleteClick2$ = sources.DOM
     .select('#deleteB').events('click');
 
-var deleteAction2$ = deleteClick2$.map(function (e) {
+  var deleteAction2$ = deleteClick2$.map(function (e) {
     var i = e.target.parentNode.id;
     console.log('In deleteAction2 ***   ***   ***   ***   ***   ***   ***   *** i is', i );
     socket.send(`GD#$42,${pMgroup.x},${pMname.x},${i}`);
-});
+  });
 
-var editB$ = sources.DOM
-    .select('input#editB').events('keydown');
+  var editB$ = sources.DOM
+      .select('input#editB').events('keydown');
 
-var editBAction$ = editB$.map( function (e) {
-  if (e.keyCode == 13) {
-    console.log('Editing a comment. Here is e', e);
-    var i = e.target.parentNode.id;
-    var comment = e.target.value.replace(/,/g, "<<>>");
-    console.log('Still in edit. Here is comment:', comment);
-    socket.send('GE#$42,' + pMgroup.x + ',' + pMname.x + ',' + i + ',' + pMname.x + "<o>" + comment);
-  }
-})
+  var editBAction$ = editB$.map( function (e) {
+    if (e.keyCode == 13) {
+      console.log('Editing a comment. Here is e', e);
+      var i = e.target.parentNode.id;
+      var comment = e.target.value.replace(/,/g, "<<>>");
+      console.log('Still in edit. Here is comment:', comment);
+      socket.send('GE#$42,' + pMgroup.x + ',' + pMname.x + ',' + i + ',' + pMname.x + "<o>" + comment);
+    }
+  })
 
-var abcde = 'inline';
-var fghij = 'inline';
+  var abcde = 'inline';
+  var fghij = 'inline';
 
   var registerPress$ = sources.DOM
-      .select('input.register').events('keypress');
+    .select('input.register').events('keypress');
 
   var registerPressAction$ = registerPress$.map(e => {
-    mMerror.ret('');
+    retrn(mMerror,'');
     var str = e.target.value;
     var ar = str.split(',');
     if (e.keyCode === 13) {
-      mMerror.ret('');
+      retrn(mMerror,'');
       if (ar.length != 2) {
-        mMerror.ret(' There should be one and only one comma' );
+        retrn(mMerror,' There should be one and only one comma' );
         return;
       }
       else {
         var name = ar[0];
         var x = ar.join('<o>');
-        mMshowRegister.ret('none');
+        retrn(mMshowRegister,'none');
         pMname.bnd(backupMonad.ret)
         console.log('In registerPressAction$. str and ar are', str, ar );
-        pMname.ret(name);
+        retrn(pMname,name);
         console.log('pMname.x is', pMname.x );
         socket.send(`RR#$42,${pMgroup.x},${pMoldName.x},${x}`); }
     }
@@ -208,7 +218,7 @@ var fghij = 'inline';
   var groupPressAction$ = groupPress$.map(e => {
       if (e.keyCode === 13) {
         socket.send(`CO#$42,${pMgroup.x},${pMname.x},${e.target.value}`);
-        pMgroup.ret(e.target.value)
+        retrn(pMgroup,e.target.value)
         .bnd(gr =>
         socket.send(`CG#$42,${pMgroup.x},${pMname.x},0,0`));
       }
@@ -307,10 +317,10 @@ var forwardAction$ = forwardClick$.map(() => {
 
   var fib2 = function fib2(v) {
       if (v[2] > 1) {
-          mMfib.ret([v[1], v[0] + v[1], v[2] - 1]);
+          retrn(mMfib,[v[1], v[0] + v[1], v[2] - 1]);
       }
       else {
-          mM19.ret(v[0]);
+          retrn(mM19,v[0]);
       }
   };
 
@@ -322,7 +332,7 @@ var forwardAction$ = forwardClick$.map(() => {
       }
       ;
       if (e.keyCode === 13) {
-          mM21.ret(e.target.value);
+          retrn(mM21,e.target.value);
           fib2([0, 1, e.target.value]);
       }
   });
@@ -332,18 +342,18 @@ var forwardAction$ = forwardClick$.map(() => {
   const workerB$ = sources.WWB.map(m => {
     console.log('In workerB$ stream in the main thread. m, m[3] ', m, m.data[3] );
     if (m.data[3] === 'color') {
-      fill1Monad.ret(m.data[0]);
-      fill2Monad.ret(m.data[1]);
-      fill3Monad.ret(m.data[2]);
-      mMprimeBlurb.ret(m.data[5]);
-      mMfibBlurb.ret(m.data[4]);
-      mMprimeFibBlurb.ret(m.data[6]);
+      retrn(fill1Monad,m.data[0]);
+      retrn(fill2Monad,m.data[1]);
+      retrn(fill3Monad,m.data[2]);
+      retrn(mMprimeBlurb,m.data[5]);
+      retrn(mMfibBlurb,m.data[4]);
+      retrn(mMprimeFibBlurb,m.data[6]);
     }
     else {
       console.log('m.data[3] ********************', m.data[3] );
-      mMelapsed.ret(elapsed(m.data[0][3]))
+      retrn(mMelapsed,elapsed(m.data[0][3]))
       .bnd(v =>  console.log(v));
-      mMres.ret(m.data[0])
+      retrn(mMres,m.data[0])
       window['primesMonad'] = new MonadState('primesMonad', m.data[1], primes_state);
     }
   });
@@ -357,7 +367,7 @@ var forwardAction$ = forwardClick$.map(() => {
 
   var clearprimes$ = sources.DOM
     .select('#clearprimes').events('click')
-    .map(() => mMres.ret([mMres.x[0], '', mMres.x[2], mMres.x[3]]));
+    .map(() => retrn(mMres,[mMres.x[0], '', mMres.x[2], mMres.x[3]]));
 
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  Begin Easy
@@ -367,11 +377,11 @@ var forwardAction$ = forwardClick$.map(() => {
   var factorsAction$ = factorsPress$.map(function (e) {
   console.log('&&&&&>>> ^ ^ ^   * * *   >>Cordial greetings from factorsAction$. e is', e );
     var factors = [];
-    mMfactors3.ret('');
+    retrn(mMfactors3,'');
     if (e.keyCode === 13) {
       var num = e.target.value;
       if (!num.match(/^[0-9]+$/)) {
-        mMfactors3.ret('This works only if you enter a number. ' + num + ' is not a number');
+        retrn(mMfactors3,'This works only if you enter a number. ' + num + ' is not a number');
       }
       else {
         var n = parseInt(num, 10);
@@ -382,8 +392,8 @@ var forwardAction$ = forwardClick$.map(() => {
 
   const workerC$ = sources.WWC.map(m => {
     console.log('Back in the main thread. m is', m );
-    mMfactors.ret(m.data[0]);
-    mMfactors23.ret(m.data[1]);
+    retrn(mMfactors,m.data[0]);
+    retrn(mMfactors23,m.data[1]);
     window['primesMonad'] = new MonadState('primesMonad', m.data[2]);
   });
 
@@ -392,13 +402,13 @@ var forwardAction$ = forwardClick$.map(() => {
     .select('input#factors_5').events('keyup');
 
   var fA$ = factorsP$.map(function (e) {
-    mMfactors7.ret('');
+    retrn(mMfactors7,'');
     var factors = [];
     if (e.keyCode === 13) {
       var ar = (e.target.value).split(',').map(v => parseInt(v,10));
       console.log('In fA$ ar is', ar );
       if (ar[0] !== ar[0] || ar[1] !== ar[1] || typeof ar[0] !== 'number' || typeof ar[1] !== 'number') {
-        mMfactors7.ret('It works only if you enter two integers separated by a comma.');
+        retrn(mMfactors7,'It works only if you enter two integers separated by a comma.');
         return;
       }
     else {
@@ -410,9 +420,9 @@ var forwardAction$ = forwardClick$.map(() => {
 
   const workerD$ = sources.WWD.map(m => {
     console.log('Back in the main thread. m is', m );
-    mMfactors6.ret(m.data[0][3]);
+    retrn(mMfactors6,m.data[0][3]);
     window['primesMonad'] = new MonadState('primesMonad', m.data[0], primes_state);
-    mMfactors8.ret(m.data[1]);
+    retrn(mMfactors8,m.data[1]);
   });
 
 
@@ -424,11 +434,11 @@ var forwardAction$ = forwardClick$.map(() => {
   var factorsAction_b$ = factorsPress_b$.map(function (e) {
   console.log('Cordial greetings from factorsAction$_b$. e is', e );
     var factors = [];
-    mMfactors3_b.ret('');
+    retrn(mMfactors3_b,'');
     if (e.keyCode === 13) {
       var num = e.target.value;
       if (!num.match(/^[0-9]+$/)) {
-        mMfactors3_b.ret('This works only if you enter a number. ' + num + ' is not a number');
+        retrn(mMfactors3_b,'This works only if you enter a number. ' + num + ' is not a number');
       }
       else {
         var n = parseInt(num, 10);
@@ -439,7 +449,7 @@ var forwardAction$ = forwardClick$.map(() => {
 
   const workerE$ = sources.WWE.map(m => {
     // console.log('Back in the main thread. m is', m );
-    mMfactors_b.ret(m.data[0]);
+    retrn(mMfactors_b,m.data[0]);
     window['primesMonad'] = new MonadState('primesMonad', m.data[1]);
     window['decompMonad'] = new MonadState('decompMonad', m.data[2]);
   });
@@ -448,13 +458,13 @@ var forwardAction$ = forwardClick$.map(() => {
     .select('input#factors_5b').events('keyup');
 
   var fA_b$ = factorsP_b$.map(function (e) {
-    mMfactors7.ret('');
+    retrn(mMfactors7,'');
     var factors = [];
     if (e.keyCode === 13) {
       var ar = (e.target.value).split(',').map(v => parseInt(v,10));
       console.log('In fA$ ar is', ar );
       if (ar[0] !== ar[0] || ar[1] !== ar[1] || typeof ar[0] !== 'number' || typeof ar[1] !== 'number') {
-        mMfactors7.ret('It works only if you enter two integers separated by a comma.');
+        retrn(mMfactors7,'It works only if you enter two integers separated by a comma.');
         return;
       }
     else {
@@ -465,10 +475,10 @@ var forwardAction$ = forwardClick$.map(() => {
 
   const workerF$ = sources.WWF.map(m => {
     console.log('Back in the main thread. m is', m );
-    mMfactors6_b.ret(m.data[2][3]);
+    retrn(mMfactors6_b,m.data[2][3]);
     window['primesMonad'] = new MonadState('primesMonad', m.data[0], primes_state);
     window['decompMonad'] = new MonadState('decompMonad', m.data[2], primes_state);
-    mMfactors8_b.ret(m.data[1]);
+    retrn(mMfactors8_b,m.data[1]);
   });
 
     var factorsP_c$ = sources.DOM
@@ -476,18 +486,18 @@ var forwardAction$ = forwardClick$.map(() => {
 
     var fA_c$ = factorsP_c$.map(function (e) {
       console.log('In fa_c$ *************************************************************'),
-      mMfactors800.ret('');
+      retrn(mMfactors800,'');
       var factors = [];
       var ar = (e.target.value).split(',').map(v => parseInt(v,10));
       if (e.keyCode === 13) {
         console.log('In fA_c$ ar is', ar );
         if (ar[0] !== ar[0] || ar[1] !== ar[1] || typeof ar[0] !== 'number' || typeof ar[1] !== 'number') {
-          mMfactors7.ret('It works only if you enter two integers separated by a comma.');
+          retrn(mMfactors7,'It works only if you enter two integers separated by a comma.');
           return;
         }
       else {
         console.log('In fA_c$ else block. ar is', ar );
-        mMfactors800.ret(simpleWay(ar[0], ar[1]));
+        retrn(mMfactors800,simpleWay(ar[0], ar[1]));
         }
       }
     });
@@ -506,12 +516,12 @@ var forwardAction$ = forwardClick$.map(() => {
 
    mMZ1.bnd(v => mMt1
   .bnd(add,v).bnd(w => {
-    mMt1.ret(w)
+    retrn(mMt1,w)
     .bnd(cube)
-    .bnd(x => mMt3.ret(w + ' cubed is ' + x))}));
+    .bnd(x => retrn(mMt3,w + ' cubed is ' + x))}));
 
   mMZ2.bnd(v => cube(v)
-  .bnd(w => mMt3.ret(v + ' cubed is ' + w)));
+  .bnd(w => retrn(mMt3,v + ' cubed is ' + w)));
 
   var testZ = sources.DOM
       .select('#testZ').events('click');
@@ -524,7 +534,7 @@ var forwardAction$ = forwardClick$.map(() => {
       .select('#testQ').events('click');
 
   var testQAction$ = testQ.map(() => {
-    mMt1.ret(0)
+    retrn(mMt1,0)
     .bnd(v => mMZ2.release(v))});
 
   var testW = sources.DOM
@@ -538,33 +548,33 @@ var forwardAction$ = forwardClick$.map(() => {
 
   var solve = function solve () {
      mMZ3.bnd(a => {
-     mMquad4.ret('');
-     mMquad6.ret('');
-     mMquad5.ret(a + " * x * x ")
+     retrn(mMquad4,'');
+     retrn(mMquad6,'');
+     retrn(mMquad5,a + " * x * x ")
      mMZ3.bnd(b => {
-     mMquad6.ret(b + ' * x ')
+     retrn(mMquad6,b + ' * x ')
      mMZ3.bnd(c => {
-     mMtemp.ret([a,b,c])
+     retrn(mMtemp,[a,b,c])
     .bnd(fmap, qS4,'mMtemp2')
     .bnd(result => {
       let x = result[0]
       let y = result[1]
       if (x === 0) {
-        mMquad5.ret('No solution', mMtemp)
-        mMquad6.ret(' ');
+        retrn(mMquad5,'No solution', mMtemp)
+        retrn(mMquad6,' ');
         solve();
         return;
       }
       if (y === 0) {
-        mMquad5.ret('No solution')
-        mMquad6.ret(' ')
+        retrn(mMquad5,'No solution')
+        retrn(mMquad6,' ')
         solve();
         return;
       };
-      mMquad4.ret("Solutiions for " + a + ", " + b + " and " + c + " are " + x + " and  " + y)
-      mMquad5.ret(p(a).text + " * " + x + " * " + x + " + " + p(b).text +
+      retrn(mMquad4,"Solutiions for " + a + ", " + b + " and " + c + " are " + x + " and  " + y)
+      retrn(mMquad5,p(a).text + " * " + x + " * " + x + " + " + p(b).text +
               " * " + x + " " + p(c).text + " = 0")
-      mMquad6.ret(p(a).text + " * " + y + " * " + y + " + " + p(b).text +
+      retrn(mMquad6,p(a).text + " * " + y + " * " + y + " + " + p(b).text +
               " * " + y + " " + p(c).text + " = 0")
       solve();   // Continuing the endless loop.
       }) }) }) })
@@ -615,8 +625,8 @@ var forwardAction$ = forwardClick$.map(() => {
 
     var captionClickAction$ = captionClick$.map(function () {
         (get(mMcaptionDiv)  === 'none') ?
-            mMcaptionDiv.ret('block') :
-            mMcaptionDiv.ret('none')
+            retrn(eMcaptionDiv,'block') :
+            retrn(mMcaptionDiv,'none')
     });
 
     var gameClick$ = sources.DOM
@@ -624,8 +634,8 @@ var forwardAction$ = forwardClick$.map(() => {
 
     var gameClickAction$ = gameClick$.map(function () {
         (get(mMgameDiv)  === 'none') ?
-            mMgameDiv.ret('block') :
-            mMgameDiv.ret('none')
+            retrn(mMgameDiv,'block') :
+            retrn(mMgameDiv, 'none')
     });
 
     var clearPicked$ = sources.DOM
@@ -637,7 +647,7 @@ var forwardAction$ = forwardClick$.map(() => {
 
 var elemB$ = sources.DOM.select('input#message2').events('keyup')
   .map(e => {
-  mM10.ret(e.target.value);
+  returmM10, (e.target.value);
   worker.postMessage([mM9.x, e.target.value]);
 });
 
@@ -787,7 +797,7 @@ var newTaskAction$ = newTask$.map(function (e) {
   var todo = [];
     var ar = e.target.value.split(',');
     if (ar.length < 2) {
-      mMalert.ret('You should enter "author, responsible party, task" separated by commas');
+      retrn(mMalert, 'You should enter "author, responsible party, task" separated by commas');
       return;
     }
     else {
@@ -867,12 +877,17 @@ h('br' ),
       h('a', { props: { href: '#asyncExplanation' } }, 'Asynchronous Processes'),
       h('br'),
       h('p', ' But it might be best to first proceed down the page and see the examples of Monad instances manipulating data. If you are trying to wrap you head around the concept of pure, chainable functions, such as the functions in the Underscore and Jquery libraries, understanding Monad instances might finally put you in the comfort zone you seek. ' ),
-h('p', ' More and more, I am transforming this project into a showcase of functional reactive programming. I still have global objects holding things together, such as pMscore, pMname, and pMgroup. These are instances of Monad, so it is convenient to avoid mutation. pMscore.ret(x) seems to replace the value held by pMscore with x, but underneath the hood an instance of Monad is created during each update. The next refactoring will put almost everything that updates into streams. "A foolish consistency is the hobgoblin of little minds" -- Emerson. JavaScript allows the mutation of objects. It, along with "eval" and other frowned-upon features, can be useful. ' ), 
+h('p', ' More and more, I am transforming this project into a showcase of functional reactive programming. I still have global objects holding things together, such as pMscore, pMname, and pMgroup. These are instances of Monad, so it is convenient to avoid mutation. pMscore,x) seems to replace the value held by pMscore with x, but underneath the hood an instance of Monad is created during each update. The next refactoring will put almost everything that updates into streams. "A foolish consistency is the hobgoblin of little minds" -- Emerson. JavaScript allows the mutation of objects. It, along with "eval" and other frowned-upon features, can be useful. ' ), 
 h('h3', 'The Game'),
 h('p', 'People who are in the same group, other than the default group named "solo", share the same todo list, chat messages, and simulated dice game. In order to see any of these, you must establish a unique identity on the server by logging in. The websockets connection terminates if the first message the server receives does not come from the sign in form. You can enter any random numbers, letters, or special characters you like. The server checks only to make sure someone hasn\'t already signed in with the sequence you have selected. If you log in with a name that is already in use, a message will appear and this page will be re-loaded in the browser after a four-second pause. '),
 h('p', ' Data for the traversable game history accumulates until a player scores three goals and wins. The data array is then erased and the application is ready to start accumulating a new history. '),
 h('p', ' Your user name for trying out the game, todo list, and chat demonstrations is a random permutation of the first 14 letters of the alphabet. In the comments section, near the bottom of this page, you can chose your own user name and a password. These facilitate leaving comments which can later be revised or removed.' ),
-h('br') ]),
+code.monad,
+  
+  
+  /*
+  
+  h('br') ]),
 h('hr.len90', {style: { display: mMgameDiv2.x }}, ),
 h('br.len90', {style: { display: mMgameDiv2.x }}, ),
 h('div.heading',  {style: { display: mMgameDiv2.x }}, 'Game, Todo List, Text Messages' ),
@@ -1091,14 +1106,14 @@ h('p', ' execF prepares the Fibonacci series and sends its state, along with the
   h('p.tao1b', ' The monad laws hold for MonadEr instances. The following relationships were verified in the Chrome console: ' ),
   h('pre', `    ret3(0,'t',[])  // t is now an instance of MonadEr with t.x = 0 and t.e = [].
 
-    t.ret(3).bnd(cube3).x === cube(3).x
+    t,3).bnd(cube3).x === cube(3).x
     ret3(3).bnd(cube3).x === cube3(3).x
 
     t.bnd(t.ret) === t
     t.bnd(ret) === t
 
-    t.ret(0).bnd(add3, 3).bnd(cube3).x ===
-    t.ret(0).bnd(v => add3(v,3).bnd(cube3)).x  ` ),
+    t,0).bnd(add3, 3).bnd(cube3).x ===
+    t,0).bnd(v => add3(v,3).bnd(cube3)).x  ` ),
 
 
 
@@ -1173,7 +1188,7 @@ h('p', 'The following example illustrates the use of release() with an argument.
 h('button#testZ', 'mMZ1.release(1)'),
 h('p.code2', mMt3.x  ) ,
 h('span', 'Refresh button: '),
-h('button#testQ', 'mMt1.ret(0).bnd(v => mMZ2.release(v)) '),
+h('button#testQ', 'mMt1,0).bnd(v => mMZ2.release(v)) '),
 h('br'),
     code.testZ,
 h('span.tao', ' The expression mMt3.x sits permanently in the Motorcycle virtual DOM description. You can call '),
@@ -1293,6 +1308,12 @@ code.MonadSet,
     })
   }
 }
+*/
+        ])
+      ])
+    })  
+  }  
+}  
 
 const sources = {
   DOM: makeDOMDriver('#main-container'),
