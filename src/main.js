@@ -1,11 +1,13 @@
 "use strict";
 import {run} from '@cycle/xstream-run';
-import {h, p, span, h1, h2, h3, pre, br, div, label, input, hr, makeDOMDriver} from '@cycle/dom';
+import {h, p, span, h1, h2, h3, pre, button, br, div, label, input, hr, makeDOMDriver} from '@cycle/dom';
 import code from './code.js';
 // import {EventEmitter} from 'events'
 console.log('If you can read this you are in main.js <@><@><@><@><@><@><@><@>');
 var textA = h('textarea', 'You bet!' );
 var formA = h('form#horses', 'You bet!' );
+
+  console.log('message from main.js >>> ret is', ret);
 
   socket.addEventListener('message', function (event) {
     console.log('<$><$><$><$><$><$><$><$><$> $$ Message from server: event.data ', event.data);
@@ -31,37 +33,41 @@ var formA = h('form#horses', 'You bet!' );
   const messages$ = sources.WS.map( e => {
     console.log('*********** INCOMING MESSAGE ***************************************');
     console.log(e);
+    var ext = "XXXXXX"
     e.data.split(',').map( v => {
-    console.log(v);
-    var group = v[1]
-    var sender =  v[2];
-    var extra = v[3];
-    var extra2 = v[4];
-    console.log('********************************************************************' );
+      console.log(v);
+      ext = v[0];  
+      var group = v[1];
+      var sender =  v[2];
+      var extra = v[3];
+      var extra2 = v[4];
+      console.log('********************************************************************' );
 
-    mMZ10.bnd( () => {
-      gameMonad.run([v[7], v[8], 0, [], [v[3], v[4], v[5], v[6]]]);
+      mMZ10.bnd( () => {
+        gameMonad.run([v[7], v[8], 0, [], [v[3], v[4], v[5], v[6]]]);
+      });
     });
-
+  
     mMZ11.bnd( () => {
       console.log('The message arrived', messages);
       var message = v.slice(3,v.length).join(', ');
-      var str = v[2] + ': ' + message;
+      var str = sender + ': ' + message;
       messages.unshift(h('span', str ), h('br'));
       console.log('The message was added to messages', messages);
     });
 
     mMZ12.bnd( () => {
-      retrn(mMgoals2,'The winner is ' + v[2]);
+      retrn(mMgoals2,'The winner is ' + sender);
       setTimeout( function () {retrn(mMgoals2,'')},7000);
     });
+  
     mMZ13.bnd( () => {
-      retrn(mMgoals2,'A player named ' + v[2] +
+      retrn(mMgoals2,'A player named ' + sender +
         ' is currently logged in. Page will refresh in 4 seconds.')
       refresh() });
 
     mMZ14.bnd( () => {
-      if (v[3] === "no file" || typeof v[3] == 'undefined') {
+      if (v[3] === "no file" || typeof extra == 'undefined') {
         console.log('"no file" or "undefined" arrived at mMZ17');
         taskMonad.s = [];
         taskMonad.html = "";
@@ -99,12 +105,12 @@ var formA = h('form#horses', 'You bet!' );
         retrn(mMregister,'The new name ' + extra + ' was registered.' );  
         socket.send('GZ#$42,' + pMgroup.x + ',' + pMname.x + ',<@>' + str);
       }
-
+    
       if (extra2 === "code3") {
         retrn(pMname,sender);
         retrn(mMregister,'The password you entered is not the password that is registered for ' + extra + '.' ); 
       }
-    });
+    })
 
     mMZ19.bnd( () => {                          // Prefix ZN#$42  NEW COMMENT
       var a = commentMonad.s[0];
@@ -127,20 +133,19 @@ var formA = h('form#horses', 'You bet!' );
       var c = b.join('<@>'); 
       retrn(mMcomments,commentMonad.run(c));      // Re-set the div ids and update the display.
     });
-  })
-
-  bind(ret(e.data.split(',')[0]), next, 'CA#$42', mMZ10)
-  (temp, next, 'CD#$42', mMZ11)
-  (temp, next, 'CE#$42', mMZ12)
-  (temp, next, 'EE#$42', mMZ13)
-  (temp, next, 'DD#$42', mMZ14)
-  (temp, next, 'NN#$42', mMZ15)
-  (temp, next, 'ZZ#$42', mMZ16)
-  (temp, next, 'RR#$42', mMZ17)
-  (temp, next, 'WW#$42', mMZ18)
-  (temp, next, 'ZN#$42', mMZ19)
-  (temp, next, 'ZE#$42', mMZ20)
-  (temp, next, 'ZD#$42', mMZ21)
+  console.log("ext is", ext);  
+  next( ext, 'CA#$42', mMZ10)
+  next( ext, 'CD#$42', mMZ11)
+  next( ext, 'CE#$42', mMZ12)
+  next( ext, 'EE#$42', mMZ13)
+  next( ext, 'DD#$42', mMZ14)
+  next( ext, 'NN#$42', mMZ15)
+  next( ext, 'ZZ#$42', mMZ16)
+  next( ext, 'RR#$42', mMZ17)
+  next( ext, 'WW#$42', mMZ18)
+  next( ext, 'ZN#$42', mMZ19)
+  next( ext, 'ZE#$42', mMZ20)
+  next( ext, 'ZD#$42', mMZ21)
   });
 
   console.log('1^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ got this far');
@@ -149,7 +154,6 @@ var formA = h('form#horses', 'You bet!' );
     if (x == y) {
       instance.release(z);
     }
-    return ret(x);
   };
 
   var comment$ = sources.DOM.select('#comment').events('keydown');
@@ -841,13 +845,75 @@ var chatClick$ = sources.DOM
       h('span', ' ' ),
       h('a', { props: { href: "https://cycle.js.org/", target: "_blank" } }, 'A Cycle.js application') ]),
 h('div.content', [
-h('p', ' This site started as a place for me (David Schalk) to experiment. But now this project is mature enough to possibly be of some interest or use to others. ' ),
-h('p', ' Front-end web developers might be interested in seeing how I encapsulate procedures and state in objects whose methods conform to a JavaScript version of the Haskell monad laws. It is fascinating to see how reactivity is achieved in Cycle.js. The Haskell server, which I wouldn\'t swap for anything, might also be of interest. '),
-h('p', 'People who are developing a feel for function reactive programming can cut through to its essence by seeing it implemented in various contexts. The combination of Lodash, Immutable.js, and RxJS running in Node.js is one possibility. Here I demonstrate how easy it is to create monads to suit various purposes, and make them reactive by implementing them in a Cycle.js framework. ' ),
+h('p', ' This website features monads that do not have methods. Monadic functionality is achieved through the use of a function named "bind". Let m1, m2, and m3 be monads. bind(m1) returns a function (named "inner") that operates on m1 and the function and arguments provided to produce monad m2 and return bind(m2). bind(m2), as you might have anticipated, returns inner() which operates on m2 and whatever function and arguments it receives to produce m3 and return bind(3). ' ), 
+h('p', ' You can write bind(m1) followed by as many functions as you like. The process ends and returns the result of the most recent computation when it encounters the function "terminate". Values can be assigned to specific monads during every link in the chain of computations. ' ),
+ 
+h('p', ' I will begin by using my Javascript Monads project as the basis for a tutorial or refresher on functional programming. Specifically, it will be a tutorial or refresher on currying and the usefulness of higher order functions; this is functions that take functions as arguments. That means I will ignore the benefits of immutabile data and the drawbacks inherent in defining functions that interact with data outside of their scope. ' ),
+h('p', ' Some tutorials try to explain the benefits of working with immutable data structures. The subject is very complicated. Immutable data structures promote ease of understanding and maintaining application code, but that is not the whole story. Abandoning immutability in some cases frees significant resources without causing any problems. Javascript\'s mutability is a useful tool which developers would be ill-advised to ignore. That\'s all I will say about that, at least for now. ' ), 
+h('p', ' Other tutorials try to explain the benefits of avoiding side effects. I wholeheartedly agree that it is usually best to avoid causing side effects, but this application has functions that send websocket messages that set in motion processes which end up mutating the DOM, and others that update specialized monads that preserve data, sometimes persistently in files accessed by the server. I will leave a discussion of the ins and outs of deciding when and how to create side effects for another time. Let\'s look at the more down-to-earth subject of higher order functions. Those are the ones that take functions as arguments and/or return functions.  ' ),
+h('h3', 'Functions That Process Functions' ),
+h('p', ' Understanding functions that take functions as arguments and return functions can seem as difficult as understanding a rubics cube. After a while, working with them becomes second nature. Experienced developers and novices alike benefit from taking the time to experiment with higher order functions. The brain needs to acclimate to a new way of thinking. I suggest that you become familiar with interactions between instances of Monad as defined here and the bind() function. You will see how the most elementary functions imaginable can be chained together. Here is Monad: ' ),     
+h('pre', `    function Monad(z = 'default', ID = 'tempMonad') {
+      this.x = z;
+      this.id = ID;
+    }; ` ),
+h('p', ' And here is a demonstration of chaining: ' ),
+h('pre', `    bind(m)(v=>3)(v=>v*v*v)(v=>v+3)(v=>v*v)(terminate) // 900 ` ),
+h('p', ' Of course, you need to know the definition of bind() before you can understand how this works. Hold on to your hat and watch the partial application of bind() return a function that performs a computation and returns the partial application of bind() he result. On and on it goes, always waiting for the next function, until it receives "terminate" which causes it to yield the outcome of the series of computations and stop. '),
+h('pre', `   function bind (m) {
+    var inner = function (func, ...args) { 
+      var monad = evaluate(m);
+      var y = evaluate(func(monad.x, ...args)) 
+      var ID = testPrefix(args, monad.id);
+      window[ID] = new Monad(y.x, ID);
+      if (func.name === "terminate") return y.x
+      else return bind(y); 
+    };
+    return inner
 
-h('p', ' This site is not a paradyme of functional programming. If it were, the user name and score would not be maintained in the globally accessable monads pMname and pMscore. But with few exceptions, the unctions you will see here do not_fish for values in the global space. As refactoring continues, mutable state will increasingly be confined to streams.'),
+    function testPrefix (x,y) {
+       var t = y;  // y is the id of the monad calling testPrefix
+       if (Array.isArray(x)) {
+        x.map(v => {
+          if (typeof v == 'string' && v.charAt() == '$') {
+             t = v.slice(1);  // Remove $ from the id of the soon to be instantiated monad.
+          }
+        })
+      }
+      return t;
+    } ` ),
+h('p', ' The ret() function is useful for defining instances of Monad. Here\'s an example: ' ),
 
-h('span.tao', 'None of the monads currently being employed in these demonstrations emit or listen for events, and the virtual DOM elements contain no callbacks. DOM updates are prompted by adding elements to driver streams or by changing the values of monads embedded in the virtual DOM. A video presentation by the author of Cycle.js showing how it so elegantly performs its magic can be fount at '),
+h('pre', `    bind(ret(2,"moocow"))(double)(double)(double)(double)(double,"$moocow") ` ),
+h('p', ' The result is 64, the number expected when you double 2 and continue doubling four more times. '),h('p', ' bind() cannot create monads on the fly, the the functions that follow can. For example: ' ),    
+  
+h('pre', `    bind(ret(2,"moocow"))(double)(double)(double,"$ontheflyMonad")(double)(double,"$moocow") 
+    // ontheflyMonad.x = 64  ` ),
+h('p', ' Here\'s a function that produces finite series of arbitrary length: ' ),
+h('pre', `    function series (n, func) {
+      var mxxq = new Monad (0, 'mxxq')
+      var str;
+      var ar = [2];
+      var start = bind(mxxq)(v=>ret(2))
+      makeArray(n).map(k => {
+      start(x=>console.log(x));
+        start = start(x=>ret(x*2))
+        ar.push(start)
+      })
+      return ar;
+}  `),
+
+       
+
+  
+  
+  
+  
+  
+  
+  
+  
+  h('span.tao', 'None of the monads currently being employed in these demonstrations emit or listen for events, and the virtual DOM elements contain no callbacks. DOM updates are prompted by adding elements to driver streams or by changing the values of monads embedded in the virtual DOM. A video presentation by the author of Cycle.js showing how it so elegantly performs its magic can be fount at '),
   
 h('a', { props: { href: "https://egghead.io/lessons/rxjs-overview-of-cycle-js", target: "_blank" } }, 'Overview of Cycle.js.'),
 h('br' ),
@@ -883,9 +949,13 @@ h('p', 'People who are in the same group, other than the default group named "so
 h('p', ' Data for the traversable game history accumulates until a player scores three goals and wins. The data array is then erased and the application is ready to start accumulating a new history. '),
 h('p', ' Your user name for trying out the game, todo list, and chat demonstrations is a random permutation of the first 14 letters of the alphabet. In the comments section, near the bottom of this page, you can chose your own user name and a password. These facilitate leaving comments which can later be revised or removed.' ),
 code.monad,
-  
+  code.variations,
+  code.variations2
   
   /*
+]),
+h('img.image', {props: {src: "demo_000.png"}, style: {marginLeft: "auto", marginRight: "auto"}}),
+h('div.content', [ 
   
   h('br') ]),
 h('hr.len90', {style: { display: mMgameDiv2.x }}, ),

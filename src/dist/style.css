@@ -605,6 +605,11 @@ h3 {
   font-size:20px;
 }
 
+.redsmall {
+  color: #eec8f4;
+  font-size:9px;
+}
+
 .red {
   color: #FF0000;
   font-size:20px;

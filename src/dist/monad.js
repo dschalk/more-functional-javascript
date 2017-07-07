@@ -18,52 +18,71 @@ var stat;
 var solo = "solo";
 var gameData = "nobody 0 | 0 \njudy 0 | 0"
 
-function testPrefix (x,y) {
-   var t = y;
-   if (Array.isArray(x)) {
-    x.map(v => {
-      if (typeof v == 'string' && v.charAt() == '$') {
-         t = v.slice(1);
-      }
-    })
-  }
-  return t;
+function makeArray (n) {
+  var a = new Array (n)
+  for (var k=0; k<=n; k+=1) a[k] = k; 
+  return a
 }
+function evaluate (x) {  
+  var isMonad = false;
+  var b = eval("typeof x")
+  if (b !== "undefined") isMonad = (eval(x) instanceof Monad) 
+  if (isMonad) return eval(x);
+  return (new Monad(x,x)); 
+};
 
-  function Monad(z = 'default', ID = 'temp') {
+  function Monad(z = 'default', ID = 'tempMonad') {
     this.x = z;
     this.id = ID;
   };
 
-  function bind (monad, func, ...args) {
-    var m = func(monad.x, ...args)
-    if (m instanceof Monad) {m = m.x};
-    var ID = testPrefix(args, monad.id);
-    window[ID] = new Monad(m, ID);
-    return bind;
-  };
-
-  function ret(v, id = 'temp') {
-    window[id] = new Monad(v, id);
-    return window[id];
+  function testPrefix (x,y) {
+     var t = y;  // y is the id of the monad calling testPrefix
+     if (Array.isArray(x)) {
+      x.map(v => {
+        if (typeof v == 'string' && v.charAt() == '$') {
+           t = v.slice(1);  // Remove $ from the id of the soon to be instantiated monad.
+        }
+      })
+    }
+    return t;
   }
 
-  function cube (v) {
-      return v*v*v;
-  };
+  function ret (v, id = 'temp_from_ret') {
+    return window[id] = new Monad(v, id);
+  }
 
   function square (v) {
-      return v*v;
+    return ret(v*v)
+  };
+
+  function cube (v) {
+    return ret(v*v*v);
   };
 
   function add (a, b) {
-    return (parseInt(a,10) + parseInt(b,10));
+    return ret((parseInt(a,10) + parseInt(b,10)));
   };
 
-  function retrn (monad, value) {
-    window[monad.id] = new Monad (value, monad.id);
-    return bind;
+  var double = function double(v) {
+      return ret(v + v);
   };
+
+  function mult(x, y) {
+    return ret(x * y);
+    }
+
+  function pi (k) {
+    var a = (2*k)*(2*k);
+    var b = (k+2)*(k)
+    return ret(a/b)
+  }
+
+
+var m0 = new Monad (0, "m0")
+//retrn(m,2)(square)(square,"$m")(v => ret(console.log(v)).x)
+
+//retrn(m,2)(v => square(v))(square,"$m")(v => ret(console.log(v)).x)
 
   var M = function M(a, b) {
     var mon = new Monad(a, b);
@@ -71,6 +90,7 @@ function testPrefix (x,y) {
   };
 
   var count = 0;
+  var mM0 = M(0, 'mM0');
   var mM1 = M([], 'mM1');
   var mMbound = M(0, 'mMbound');
   var mM2 = M(0, 'mM2');
@@ -186,6 +206,7 @@ function testPrefix (x,y) {
   var mMquad2 = new Monad('', 'mMquad2');
   var mMquad3 = new Monad('', 'mMquad3');
   var m = new Monad(42, 'm');
+  var m0 = new Monad(0, 'm0');
   var m1 = new Monad(1, 'm1');
   var m2 = new Monad(2, 'm2');
   var m3 = new Monad(3, 'm3');
@@ -980,14 +1001,6 @@ function calc (a, op, b) {
           return ret(x);
   };
 
-  var double = function double(v, mon) {
-      return ret(v + v);
-  };
-
-  function mult(x, y) {
-    return ret(x * y);
-    }
-
 function log3(x, message) {
     return ret(x);
 };
@@ -1278,7 +1291,7 @@ setTimeout( function () {
 console.log('************************ Here is mMstream.x', mMstream.x)
 },500 );
 
-function mMstreamDriver () {
+/*function mMstreamDriver () {
   return xs.create({
     start: listener => { mMstream.x.on(1,msg) = msg => listener.next(msg)},
     stop: () => { mMstream.removeAllListeners() }
@@ -1290,17 +1303,10 @@ function mMstream2Driver () {
     start: listener => { mMstream2.x.on(1,msg) = msg => listener.next(msg)},
     stop: () => { mMstream.removeAllListeners() }
   });
-};
+};*/
 
 
 // ***************************************************************************
-
-function oF (func, mon) {
-  return bind(mon,func);
-};
-
-oF ( cube, mM25 );
-console.log('oF ( cube, mM25 ) ... mM25.x is', mM25.x );
 
 class Polygon {
   constructor(height, width) {
@@ -1812,11 +1818,52 @@ function rand () {
 };
 
 var rand$ = xs.of(rand());
+/*
+var a = bd(m);
+var b = a(v=>v*v*v)(v=>ret(v+ 3),"$m")
+console.log(a);
+console.log(b);
+console.log("Suzy Q")
+console.log(m);
+console.log("Linda");
+*/
+
+  function terminate (x) {return x};
+
+  function bind (m) {
+    var inner = function (func, ...args) { 
+      //console.log('**************** monad, y, ID, window[ID] **************');
+      var monad = evaluate(m);
+      //console.log('monad',monad);
+      var y = evaluate(func(monad.x, ...args)) 
+      //console.log('y',y);
+      var ID = testPrefix(args, monad.id);
+      //console.log('ID',ID);
+      window[ID] = new Monad(y.x, ID);
+      if (func.name === "terminate") return y.x
+      else return bind(y); 
+      //console.log('window[ID]', window[ID]);
+      // return bind(this.y); 
+      //return bd(window[ID]);
+    };
+    return inner
+  };
+
+  function retrn (monad, value) {
+    window[monad.id] = new Monad (value, monad.id);
+    return new bind(window[monad.id])
+  };
+  
+retrn(m,3)
+var a = bind(m)(v=>v*v*v)(v=>ret(v+ 3),"$m")(v=>ret(v*v),"$m")(terminate) + 100
+console.log(a);
 
 
-
-
-
+/*
+Exception: TypeError: this.monad is undefined
+inner@Scratchpad/1:7:29
+@Scratchpad/1:22:9
+*/
 
 
 

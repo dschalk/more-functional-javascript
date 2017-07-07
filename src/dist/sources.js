@@ -26,7 +26,7 @@ var ws = createWebSocket('/');
 
 setTimeout ( function () {
   console.log('########## socket.readyState: ', socket.readyState);
-},2000 );
+},1000 );
 
 function websocketsDriver() {
   return xs.create({
