@@ -837,29 +837,28 @@ var chatClick$ = sources.DOM
     h('div.preContent', [
     h('br'),
       h('br'),
-      h('div', 'FUNCTIONAL REACTIVE PROGRAMMING'),
-      h('div', 'WITH CUSTOM MONADS AND CYCLE.JS') ]),
+      h('div', 'MONADS WITHOUT METHODS') ]),
       h('br'),
       h('div.image_3', [
       h('img.image_2', {props: {src: "logo.svg" }}  ),
       h('span', ' ' ),
       h('a', { props: { href: "https://cycle.js.org/", target: "_blank" } }, 'A Cycle.js application') ]),
 h('div.content', [
-h('p', ' This website features monads that do not have methods. Monadic functionality is achieved through the use of a function named "bind". Let m1, m2, and m3 be monads. bind(m1) returns a function (named "inner") that operates on m1 and the function and arguments provided to produce monad m2 and return bind(m2). bind(m2), as you might have anticipated, returns inner() which operates on m2 and whatever function and arguments it receives to produce m3 and return bind(3). ' ), 
-h('p', ' You can write bind(m1) followed by as many functions as you like. The process ends and returns the result of the most recent computation when it encounters the function "terminate". Values can be assigned to specific monads during every link in the chain of computations. ' ),
- 
-h('p', ' I will begin by using my Javascript Monads project as the basis for a tutorial or refresher on functional programming. Specifically, it will be a tutorial or refresher on currying and the usefulness of higher order functions; this is functions that take functions as arguments. That means I will ignore the benefits of immutabile data and the drawbacks inherent in defining functions that interact with data outside of their scope. ' ),
-h('p', ' Some tutorials try to explain the benefits of working with immutable data structures. The subject is very complicated. Immutable data structures promote ease of understanding and maintaining application code, but that is not the whole story. Abandoning immutability in some cases frees significant resources without causing any problems. Javascript\'s mutability is a useful tool which developers would be ill-advised to ignore. That\'s all I will say about that, at least for now. ' ), 
-h('p', ' Other tutorials try to explain the benefits of avoiding side effects. I wholeheartedly agree that it is usually best to avoid causing side effects, but this application has functions that send websocket messages that set in motion processes which end up mutating the DOM, and others that update specialized monads that preserve data, sometimes persistently in files accessed by the server. I will leave a discussion of the ins and outs of deciding when and how to create side effects for another time. Let\'s look at the more down-to-earth subject of higher order functions. Those are the ones that take functions as arguments and/or return functions.  ' ),
-h('h3', 'Functions That Process Functions' ),
-h('p', ' Understanding functions that take functions as arguments and return functions can seem as difficult as understanding a rubics cube. After a while, working with them becomes second nature. Experienced developers and novices alike benefit from taking the time to experiment with higher order functions. The brain needs to acclimate to a new way of thinking. I suggest that you become familiar with interactions between instances of Monad as defined here and the bind() function. You will see how the most elementary functions imaginable can be chained together. Here is Monad: ' ),     
+h('p', ' This branch of the JavaScript Monads project features monads that do not have methods. These better resemble Haskell Monads, but the analogy is still quite a stretch. Javascript has no provision for defining operators, things like "typeof", "+", and "instanceOf". This project\'s counterparts to Haskell\'s >>= operator (called "bind") are the bnd() method and the bind() function. ' ),
+h('p', ' Here is the definition of Monad: ' ),
 h('pre', `    function Monad(z = 'default', ID = 'tempMonad') {
       this.x = z;
       this.id = ID;
     }; ` ),
-h('p', ' And here is a demonstration of chaining: ' ),
+h('p', ' It couldn\'t be much simpler. But look how it processes a value with function after function until it is instructed to terminate and return the result:  ' ),
 h('pre', `    bind(m)(v=>3)(v=>v*v*v)(v=>v+3)(v=>v*v)(terminate) // 900 ` ),
-h('p', ' Of course, you need to know the definition of bind() before you can understand how this works. Hold on to your hat and watch the partial application of bind() return a function that performs a computation and returns the partial application of bind() he result. On and on it goes, always waiting for the next function, until it receives "terminate" which causes it to yield the outcome of the series of computations and stop. '),
+
+h('p', ' This functionality is achieved through the use of bind(). Let m1, m2, and m3 be monads. bind(m1) returns a function (named "inner") that operates on m1 and the function and arguments provided to produce monad m2 and return bind(m2). bind(m2), as you might have anticipated, returns inner() which operates on m2 and whatever function and arguments it receives to produce m3 and return bind(3). ' ), 
+h('p', ' You can write bind(m1) followed by as many functions as you like. The process ends and returns the result of the most recent computation when it encounters the flag_"terminate". Values can be assigned to specific monads in every link in the chain of computations. ' ),
+ 
+h('h3', 'Higher Order Functions' ),
+h('p', ' Understanding functions that take functions as arguments and return functions can seem as difficult as understanding a rubics cube. After a while, working with them becomes second nature. Experienced developers and novices alike benefit from taking the time to experiment with higher order functions. The brain needs to acclimate to a new way of thinking. Here is bind() and its helper function, textPrefix: ' ),     
+
 h('pre', `   function bind (m) {
     var inner = function (func, ...args) { 
       var monad = evaluate(m);
@@ -870,6 +869,14 @@ h('pre', `   function bind (m) {
       else return bind(y); 
     };
     return inner
+
+    function evaluate (x) {  
+      var isMonad = false;
+      var b = eval("typeof x")
+      if (b !== "undefined") isMonad = (eval(x) instanceof Monad) 
+      if (isMonad) return eval(x);
+      return (new Monad(x,x)); 
+    };
 
     function testPrefix (x,y) {
        var t = y;  // y is the id of the monad calling testPrefix
@@ -885,8 +892,20 @@ h('pre', `   function bind (m) {
 h('p', ' The ret() function is useful for defining instances of Monad. Here\'s an example: ' ),
 
 h('pre', `    bind(ret(2,"moocow"))(double)(double)(double)(double)(double,"$moocow") ` ),
-h('p', ' The result is 64, the number expected when you double 2 and continue doubling four more times. '),h('p', ' bind() cannot create monads on the fly, the the functions that follow can. For example: ' ),    
-  
+h('p', ' The result is 64, the number expected when you double 2 and continue doubling four more times. '),
+h('p', ' The Haskell monad laws are loosely analogous to the category theory criteria for monads. Here they are: '),
+h('pre', `  m >>= return \u2261 m   
+  (return x) >>= f \u2261 f x 
+  (m >>= f) >>= g \u2261 m >>= ( \\x -> (f x >>= g) `), 
+h('p', ' And here is ret() acting as a left and right identity function, along with a demonstration of the commutivity of instances of Monad: ' ), 
+h('pre', `  console.log(
+    bind(ret(5,'m'))(cube)(terminate) === bind(5,'m')(cube)(terminate),
+    bind(m)(v=>3)(ret)(terminate) === bind(m)(v=>3)(terminate),
+    bind(m)(v=>0)(v => add(v,5))(cube)(terminate) 
+      === bind(m)(v=>0)(add,5)(v=>cube(v))(terminate)
+  );  // true, true, true ` ),
+h('p', ' I\'m not implying that this proves anything. Niether Haskell\'s nor JavaScript\'s values and functions constitue a category. But commutivity and the presence of an identity function are features of robust and versitile code, so it is reassuring to see that we have them. ' ),
+
 h('pre', `    bind(ret(2,"moocow"))(double)(double)(double,"$ontheflyMonad")(double)(double,"$moocow") 
     // ontheflyMonad.x = 64  ` ),
 h('p', ' Here\'s a function that produces finite series of arbitrary length: ' ),

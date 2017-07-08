@@ -1,5 +1,6 @@
-'use strict';
-var todoData, mMt3VAL;
+//'use strict';
+var todoData
+var mMt3VAL;
 var taskL = [];
 var namesList;
 var MESSAGES = [];
@@ -742,7 +743,6 @@ function message_state(v) {
 var messageMonad = new MonadState('messageMonad', [], message_state);
 
 var mMsetArchive = new Monad([], 'mMsetArchive');
-retrn(mMsetArchive, []);
 
 function clean(x, mon) {
   if (mon === void 0) { mon = mMtemp; }
@@ -1818,52 +1818,41 @@ function rand () {
 };
 
 var rand$ = xs.of(rand());
-/*
-var a = bd(m);
-var b = a(v=>v*v*v)(v=>ret(v+ 3),"$m")
-console.log(a);
-console.log(b);
-console.log("Suzy Q")
-console.log(m);
-console.log("Linda");
-*/
 
   function terminate (x) {return x};
 
   function bind (m) {
     var inner = function (func, ...args) { 
-      //console.log('**************** monad, y, ID, window[ID] **************');
       var monad = evaluate(m);
-      //console.log('monad',monad);
       var y = evaluate(func(monad.x, ...args)) 
-      //console.log('y',y);
       var ID = testPrefix(args, monad.id);
-      //console.log('ID',ID);
       window[ID] = new Monad(y.x, ID);
       if (func.name === "terminate") return y.x
       else return bind(y); 
-      //console.log('window[ID]', window[ID]);
-      // return bind(this.y); 
-      //return bd(window[ID]);
     };
     return inner
   };
 
-  function retrn (monad, value) {
-    window[monad.id] = new Monad (value, monad.id);
-    return new bind(window[monad.id])
+  function retrn (m, value = 0) {
+    if (eval ("typeof m") === "undefined") {
+      console.log("Happy Honika"); 
+      if (eval(m) instanceof Monad) {
+        return window[m.id] = new Monad(value, m.id)
+      }
+    }
+    window[m] = new Monad (value, m);
+    return bind(window[m]);
   };
   
-retrn(m,3)
-var a = bind(m)(v=>v*v*v)(v=>ret(v+ 3),"$m")(v=>ret(v*v),"$m")(terminate) + 100
+var a = bind(m)(v=>3)(v=>v*v*v)(v=>ret(v+ 3),"$m")(v=>ret(v*v),"$m")(terminate) + 100
 console.log(a);
 
-
-/*
-Exception: TypeError: this.monad is undefined
-inner@Scratchpad/1:7:29
-@Scratchpad/1:22:9
-*/
-
+function cloneMonad (m, val, f) {
+  var preserve = m.x;
+  var clone = m;
+  bind(clone)(()=>val)(f,"$c");
+  retrn("m",preserve);
+  return c
+}
 
 
