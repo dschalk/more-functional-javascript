@@ -125,6 +125,12 @@ head5 _ = [("a","b","c","d","e","f","g","h")]
 safeTail [] = []
 safeTail v  = tail v
 
+safeHead :: [Text] -> Name
+safeHead v  = head v
+
+safeSecond :: [Text] -> Password
+safeSecond v  = safeHead (safeTail v)
+
 getName = sel1
 
 getConn = sel5
@@ -332,7 +338,14 @@ application state pending = do
     print "App is fired up"
     conn <- WS.acceptRequest pending
     msg <- WS.receiveData conn
-    print $ T.unpack msg
+    print $ "First message: " ++ T.unpack msg
+    let msg2 = T.drop 6 msg
+    let msgArray = T.splitOn oh msg2
+    print msgArray
+    let name = safeHead msgArray
+    print name
+    let password = safeSecond msgArray
+    print password
     count <- atomically counter
     id0 <- atomically $ readTVar count
     let id = id0 + 1
@@ -353,12 +366,11 @@ application state pending = do
                     st <- atomically $ readTVar state
                     let st2 = addClient client st
                     atomically $ writeTVar state st2
-                    WS.sendTextData conn ("CC#$42,solo," `mappend` name `mappend` " ,joined" :: Text)
+                    WS.sendTextData conn ("CC#$42,solo," `mappend` name `mappend` com `mappend` T.drop 6 msg)
                     talk conn state client
          where
                 prefix = "CC#$42"
-                namePword = T.splitOn oh $ T.drop (T.length prefix) msg
-                client = (head namePword, 0, 0, solo, conn, last namePword, id, (T.pack "david<o>Still testing"))
+                client = (name, 0, 0, solo, conn, password, id, (T.pack "david<o>Still testing"))
                 disconnect = do
                     st <- atomically $ readTVar state
                     let name = getNm id st
@@ -381,7 +393,6 @@ talk conn state client = forever $ do
   let group = msgArray !! 1
   let sender = msgArray !! 2
   let extra = msgArray !! 3
-  let extraStr = mArr !! 3
   let extra2 = msgArray !! 4
   let extraNum = read (mArr !! 3) :: Int
   let extraNum2 = read (mArr !! 4) :: Int
@@ -394,9 +405,9 @@ talk conn state client = forever $ do
   let comma = T.pack ", "
   let comma2 = T.pack ","
   comz <- TIO.readFile xcomments
-  comms <- atomically $ newTVar comz
+  comms <- atomically $ newTVar comz -- Archived comments placed in a TVar
   ns <- TIO.readFile namesFile
-  names <- atomically $ newTVar ns
+  names <- atomically $ newTVar ns -- name<o>password combos placed in a TVar 
   print at
   print at
   
@@ -600,8 +611,10 @@ talk conn state client = forever $ do
      else if "CE#$42" `T.isPrefixOf` msg ||
         "CH#$42" `T.isPrefixOf` msg || "XY#$42" `T.isPrefixOf` msg ||
         "DE#$42" `T.isPrefixOf` msg || "EQ#$42" `T.isPrefixOf` msg ||
-        "GQ#$42" `T.isPrefixOf` msg || "CF#$42" `T.isPrefixOf` msg ||
-        "CY#$42" `T.isPrefixOf` msg || "CR#$42" `T.isPrefixOf` msg || "CD#$42" `T.isPrefixOf` msg ||
+        "GQ#$42" `T.isPrefixOf` msg || "CF#$42" `T.isPrefixOf` msg || 
+        "CY#$42" `T.isPrefixOf` msg || "CR#$42" `T.isPrefixOf` msg || 
+        --"CC#$42" `T.isPrefixOf` msg || 
+        "CD#$42" `T.isPrefixOf` msg ||
         "IA#$42" `T.isPrefixOf` msg || "DY#$42" `T.isPrefixOf` msg
         then
             do
@@ -646,18 +659,14 @@ talk conn state client = forever $ do
                 broadcast ("NN#$42," `mappend` group `mappend` "," `mappend` sender `mappend` ","
                     `mappend` (T.pack "<br>") `mappend` T.concat (intersperse "<br>" (textState subSt))) subSt
 
-     else if "TD#$42" `T.isPrefixOf` msg     -- Delete tasks
+     else if "TD#$42" `T.isPrefixOf` msg     
         then
             do
                 st <- atomically $ readTVar state
-                let subSt = subState sender group st
-                let shorter = drop 3 mArr
-                let tex = Prelude.map T.pack shorter
-                let trunc = T.intercalate comma tex
-                save (mArr !! 1) trunc
-                print $ "The server is sending: " ++ T.unpack trunc
+                comments <- atomically $ readTVar comms
+                print $ "The server is sending: " `mappend` comments
                 broadcast ("DD#$42," `mappend` group `mappend` ","
-                    `mappend` sender `mappend` "," `mappend` trunc) subSt
+                    `mappend` sender `mappend` "," `mappend` comments) st
 
 
      else if "TX#$42" `T.isPrefixOf` msg    -- Delete when only one task remains.

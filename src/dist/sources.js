@@ -1,4 +1,5 @@
 
+var fucku = "Howdy partner"
 var connection;
 
 function createWebSocket(path) {
@@ -9,20 +10,12 @@ function createWebSocket(path) {
     var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
 
     return new Socket(uri);
-}
-
-function createWebSocket(path) {
-    var host = window.location.hostname;
-    if (host === '')
-        host = 'localhost';
-    var uri = 'ws://' + host + ':3055' + path;
-    var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
-
-    return new Socket(uri);
-}
+} 
 
 var socket = createWebSocket('/');
-var ws = createWebSocket('/');
+
+
+//var ws = createWebSocket('/');
 
 setTimeout ( function () {
   console.log('########## socket.readyState: ', socket.readyState);
@@ -88,7 +81,6 @@ socket.onmessage = function (event) {
 socket.onclose = function (event) {
     console.log('<><><> New message <><><> ', event);
 };
-
 
 
 /*function eM2Driver () {

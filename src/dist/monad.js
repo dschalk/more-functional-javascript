@@ -1,4 +1,5 @@
 //'use strict';
+//
 var todoData
 var mMt3VAL;
 var taskL = [];
@@ -25,16 +26,47 @@ function makeArray (n) {
   return a
 }
 function evaluate (x) {  
-  var isMonad = false;
+  var x = x;
   var b = eval("typeof x")
-  if (b !== "undefined") isMonad = (eval(x) instanceof Monad) 
-  if (isMonad) return eval(x);
-  return (new Monad(x,x)); 
-};
+  console.log('In evaluate. b is', b);
+  if (b === "unidentified") {
+    var a = String(x);
+    return new Monad(a,a);
+  }
+  if (b === "object") {
+    if (eval(x) instanceof Monad) {
+      window[x.id] = new Monad(x.x, x.id)
+      return window[x.id];
+    } 
+  }
+  if (b === "string") {
+    if (eval(x) instanceof Monad) {
+      let monad = eval(x);
+      window[monad.id] = new Monad(monad.x, monad.id);
+      return window[monad.id];
+    }
+  }
+  console.log('ERROR inappropriate argumnet');
+}
 
   function Monad(z = 'default', ID = 'tempMonad') {
     this.x = z;
     this.id = ID;
+  };
+
+  Monad.prototype.bnd = function (func, ...args) {
+    var m = func(this.x, ...args)
+    var ID;
+    if (m instanceof Monad) {
+      ID = testPrefix(args, this.id);
+      window[ID] = new Monad(m.x, ID);
+      return window[ID];
+    }
+    else return m;
+  };
+
+  Monad.prototype.ret = function (a) {
+    return window[_this.id] = new Monad(a,_this.id);
   };
 
   function testPrefix (x,y) {
@@ -219,6 +251,26 @@ var m0 = new Monad (0, "m0")
   var m9 = new Monad(9, 'm9');
   var m10 = new Monad(10, 'm10');
   var m11 = new Monad(11, 'm11');
+  var m12 = new Monad(2, 'm12');
+  var m13 = new Monad(3, 'm13');
+  var m14 = new Monad(4, 'm14');
+  var m15 = new Monad(5, 'm15');
+  var m16 = new Monad(6, 'm16');
+  var m17 = new Monad(7, 'm17');
+  var m18 = new Monad(8, 'm18');
+  var m19 = new Monad(9, 'm19');
+  var m20 = new Monad(10, 'm20');
+  var m21 = new Monad(11, 'm21');
+  var m22 = new Monad(2, 'm22');
+  var m23 = new Monad(3, 'm23');
+  var m24 = new Monad(4, 'm24');
+  var m25 = new Monad(5, 'm25');
+  var m26 = new Monad(6, 'm26');
+  var m27 = new Monad(7, 'm27');
+  var m28 = new Monad(8, 'm28');
+  var m29 = new Monad(9, 'm29');
+  var m30 = new Monad(10, 'm30');
+  var m31 = new Monad(11, 'm31');
   var mMprime = new Monad([2], 'mMprime');
   var mMprime2 = new Monad([2], 'mMprime2');
   var mMprimes = new Monad([2], 'mMprimes');
@@ -347,6 +399,9 @@ var mMcaption = new Monad('block','mMcaptionDiv');
 var mMtodo = new Monad('inline','mMtodoDiv');
 var mMgame = new Monad('block','mMgameDiv');
 var mMerror = new Monad('','mMerror');
+var mMseries = new Monad('','mMseries');
+var mMnumbers = new Monad([0,0,0,0], 'mMnumbers') 
+var mMoperator = new Monad('add', 'mMoperator') 
 
 var mMob = new Monad (0, 'mMob')
 var pMname = new Monad('1v65n$%pqw3*@#9', 'pMname');
@@ -419,8 +474,7 @@ function Monad2 (z, ID = 'default') {
 }
 
 function get (m) {
-  let v = m.bnd(x => x);
-  return v;
+  return m.x;
 }
 
 function get2 (m) {
@@ -964,10 +1018,10 @@ function calc (a, op, b) {
       return ret(ar);
   };
 
-  var concat = function concat(x, v) {
-      var ar = x.slice();
-      var ar2 = ar.concat(v);
-      return ret(ar2);
+  var concat = function concat(x, v, id = "concatDefault") {
+      var a = x.slice();
+      var a2 = a.concat(v);
+      return ret(a2, id);
   };
   var sliceFront = function sliceFront(x, n) {
       var ar = x.slice(n);
@@ -1648,17 +1702,17 @@ function styl (s) {
   }
 }
 
-  function bNode (arr) {
-    console.log('In bNode - - - arr is', arr);
-    var x = styl(arr.length);
-    var node = h('div', [
-      h('button#0.num', { style: { display: x[0] }}, ' ' + arr[0] + ' ' ),
-      h('button#1.num', { style: { display: x[1] }}, ' ' + arr[1] + ' ' ),
-      h('button#2.num', { style: { display: x[2] }}, ' ' + arr[2] + ' '),
-      h('button#3.num', { style: { display: x[3] }}, ' ' + arr[3] + ' ')
-    ]);
-    return node;
-  }
+function bNode (arr) {
+  console.log('In bNode - - - arr is', arr);
+  var x = styl(arr.length);
+  var node = h('div#bNode', [
+    h('button#0.num', { style: { display: x[0] }}, ' ' + arr[0] + ' '),
+    h('button#1.num', { style: { display: x[1] }}, ' ' + arr[1] + ' '),
+    h('button#2.num', { style: { display: x[2] }}, ' ' + arr[2] + ' '),
+    h('button#3.num', { style: { display: x[3] }}, ' ' + arr[3] + ' ')
+  ]);
+  return node;
+}
 
 function isPrime(n) {
    if (isNaN(n) || !isFinite(n) || n%1 || n<2) return false;
@@ -1677,9 +1731,9 @@ function *gen(x) {
 
 var primesIt = gen(primesMonad.s[2]+1);
 
-MonadState.prototype.setIndex = function(n = this.s[1]) { this.s[1] = n; return n };
 
-var gameMonad = new MonadState('gameMonad', [[[0,0,0,[],[1,2,3,4]], [0,0,0,[],[0,0,0,0]]],1 ]);
+var gameMonad = new MonadState('gameMonad', [ [ [0,0,0,[],['lemon','lemon','lemon','lemon'] ]],0 ]);
+console.log("gameMonad.s",gameMonad.s)
 
 MonadState.prototype.dec = function () {
   this.s[1] -= 1;
@@ -1706,11 +1760,15 @@ MonadState.prototype.fetch1 = function () {
 }
 
 MonadState.prototype.fetch2 = function () {
-  return this.s[0][this.s[1]][2];
+  var x = this.s[0][this.s[1]][2];
+  retrn(mMoperator,x);
+  return x;
 }
 
 MonadState.prototype.fetch3 = function () {
-  return this.s[0][this.s[1]][3].slice();
+  var x = this.s[0][this.s[1]][3].slice();
+  retrn(mMnumbers,x);
+  return x;
 }
 
 MonadState.prototype.fetch4 = function () {
@@ -1722,42 +1780,50 @@ MonadState.prototype.clearPicked = function () {
   st[0][st[1]][3] = [];
   st[1] += 1;
   st.splice(this.s[1]+1, 0, st[0]);
+  retrn(mMnumbers,[])
   return new MonadState('gameMonad', st);
 }
 
-MonadState.prototype.run = function ([
-  score = this.s[0][this.s[1]][0],
-  goals = this.s[0][this.s[1]][1],
-  operator = this.s[0][this.s[1]][2],
-  picked = this.s[0][this.s[1]][3].slice(),
-  display = this.s[0][this.s[1]][4].slice()
-]) {
-  console.log('In MonadState run ***************%%%%%%%^^^^^^&&&&&&&');
-  this.s[1] += 1;
-  var newState = this.s.slice();
-  newState[0].splice(this.s[1], 0, [score, goals, operator, picked, display])
-   console.log('[score, goals, operator, picked, display]',
-    [score, goals, operator, picked, display]);
-  this.s = newState;
-  buttonNode = bNode(display);
-  return window['gameMonad'] = new MonadState('gameMonad', newState);
+MonadState.prototype.run = function (
+  score,// = this.s[0][this.s[1]][0],
+  goals,// = this.s[0][this.s[1]][1],
+  operator,// = this.s[0][this.s[1]][2],
+  picked, // = this.s[0][this.s[1]][3].slice(),
+  display, // = this.s[0][this.s[1]][4].slice()
+  ) {
+  this.s[1] = this.s[1] + 1;
+  console.log('In MonadState.prototype.run  -- this.s[1] is', this.s[1] );
+  var newState = [score, goals, operator, picked, display];
+  var s = this.s.slice();
+  var s0 = s[0].slice();
+  s0.splice(this.s[1], 0, newState);
+  console.log("s[0] and s0",s[0],s0);
+  window['gameMonad'] = new MonadState('gameMonad', [s0, s[1]] );
+  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
+  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
+  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
+  window['gameMonad'].html = bNode(s0[s[1]][4]);
+  console.log("In MonadState.prototype.run. window['gameMonad'] is", window['gameMonad']);
+  return window['gameMonad'];
 }
-
+gameMonad.run(0,0,0,[],[2,4,6,8])
 function newRoll (a,b) {
   socket.send(`CA#$42,${pMgroup.x},${pMname.x},6,6,12,20,${a},${b}`);
 }
 
 function updateCalc(ar, op) {
   var result = calc(ar[0], op, ar[1]);
+  console.log('In updateCalc. calc(ar[0],op,ar[1]) is', result);
   if (result === 18 || result === 20) {
     score(result);
   }
   else {
     var sco = gameMonad.fetch0();
     var goals = gameMonad.fetch1();
-    var a = gameMonad.fetch4().slice();
-    a.push(result);
-    gameMonad.run([sco,goals,0,[],a]);
+    var display = gameMonad.fetch4().slice();
+    display.push(result);
+    window["buttonNode"] = bNode(display);
+    gameMonad.run(sco,goals,0,[],display);
   }
 };
 
@@ -1767,8 +1833,8 @@ function score(result) {
     var scor = sco % 5 === 0 ? sco + 5 : sco;
     var goals = gameMonad.fetch1();
     if (scor === 25 && gameMonad.fetch1() === "2") {
-        uetrn(mMindex,0);
-        gameMonad = new MonadState('gameMonad', [[[0,0,0,[],[0,0,0,0]],[0,0,0,[][0,0,0,0]]],0]);
+        retrn(mMindex,0);
+        gameMonad = new MonadState('gameMonad', []); //[[0,0,0,[],[0,0,0,0]],[0,0,0,[][0,0,0,0]]],0]);
         socket.send(`CE#$42,${pMgroup.x},${pMname.x}`);
         newRoll(0,0);
     }
@@ -1819,33 +1885,42 @@ function rand () {
 
 var rand$ = xs.of(rand());
 
-  function terminate (x) {return x};
+function terminate (x) {return x};
 
-  function bind (m) {
-    var inner = function (func, ...args) { 
-      var monad = evaluate(m);
-      var y = evaluate(func(monad.x, ...args)) 
-      var ID = testPrefix(args, monad.id);
-      window[ID] = new Monad(y.x, ID);
-      if (func.name === "terminate") return y.x
-      else return bind(y); 
-    };
-    return inner
-  };
-
-  function retrn (m, value = 0) {
-    if (eval ("typeof m") === "undefined") {
-      console.log("Happy Honika"); 
-      if (eval(m) instanceof Monad) {
-        return window[m.id] = new Monad(value, m.id)
-      }
+function bind (m) {
+  if (!(m instanceof Monad)) {
+    console.log('bind operates only on instances of Monad')
+    return;
+  }
+  var m = m;
+  var inner = function (func, ...args) { 
+    var y = func(m.x, ...args) 
+    y.id = testPrefix(args, m.id)
+    window[y.id] = y;
+    if (func.name === "terminate") {
+      window[m.id] = new Monad (m.x, m.id);
+      return window[m.id];
     }
-    window[m] = new Monad (value, m);
-    return bind(window[m]);
+    return bind(y); 
   };
-  
-var a = bind(m)(v=>3)(v=>v*v*v)(v=>ret(v+ 3),"$m")(v=>ret(v*v),"$m")(terminate) + 100
-console.log(a);
+  return inner
+} 
+
+function retrn (m, val = m.x) {
+   if (m instanceof Monad) {
+     window[m.id] = new Monad(val, m.id);
+     return window[m.id];
+   }
+   console.log('m is not a monad in retrn')
+   return window[String(m)] = new Monad(val, String(m)); 
+ }
+
+retrn(m,77);
+console.log(m)
+
+bind(m)(x=>ret(3))(cube,"$m2")(add,3,"$m3")(square,"$m4")(x=>ret(x/100),"$m5")(x=>ret(x*5),"$m6")(add,-3,"$m7")(terminate)
+
+console.log(m.x,m2.x,m3.x,m4.x,m5.x,m6.x,m7.x)
 
 function cloneMonad (m, val, f) {
   var preserve = m.x;
@@ -1854,5 +1929,75 @@ function cloneMonad (m, val, f) {
   retrn("m",preserve);
   return c
 }
+
+function series (n, func, base) {
+    var str;
+    var ar = [];
+    var start = bind(m)(()=>ret(base))
+    makeArray(n).map(k => {
+      ar.push(start(terminate))
+      start = start(func)
+      ar.push(start)
+    }) 
+    var art = ar.filter(v => typeof v == "number");
+    return art;
+  } 
+
+function series2 (base) {
+  return function (func) {
+    return function (n) {
+      var str;
+      var ar = [];
+      var start = bind(m)(()=>ret(base))
+      makeArray(n).map(k => {
+        ar.push(start(terminate).x);
+        start = start(func)
+      }) 
+      //var art = ar.filter(v => typeof v == "number");
+      var a = ar.join(", ");
+      return a;
+    }
+  }
+}
+
+console.log('<$<$<$<$<$>$>$>$> begin series');
+
+/*var seriesArray = series(9,x=>x*2,1);
+console.log(seriesArray)
+
+var seriesArray2 = series2(10)(x=>0.5+0.5*x*x)(0.5);
+console.log(seriesArray2) */
+
+console.log('<$<$<$<$<$>$>$>$> end series');
+
+solve2();
+
+retrn(m22, "Enter the first number in the series.")
+
+function solve2 () {
+  var result; 
+  mMZ4.bnd(a => { 
+    retrn(m22, "Enter a function to recursively call");
+    var a2 = parseInt(a,10);
+    console.log('typeof a2', typeof a2);
+    mMZ4.bnd(b => {
+      retrn(m22,"Enter the number of terms in the sequence.")
+      var b2 = eval(b);
+      console.log('typeof b2', typeof b2);
+      mMZ4.bnd(c => {
+        retrn(m22, "Enter the first number in the series")
+        var c2 = parseInt(c,10);
+        console.log('typeof c2', typeof c2);
+        console.log('In solve2. a2, b2, and c2 are', a2, b2, c2);
+        var x = series2(a2)(b2)(c2)
+        console.log('In solve2. series2(a2)(b2)(c2) is', x);
+        retrn(mMseries,x);
+        solve2()
+      }) 
+    }) 
+  }) 
+} 
+  
+
 
 

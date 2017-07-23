@@ -88,15 +88,9 @@
     border-radius: 10px;
   }
 
-  #buttonB {
-    font-size: 18;
-    margin-right: 2%;
-  }
-
-  #roll {
+   #roll {
     margin-left: 8%;
   }
-
 
   label {
     background-color: #331903;
@@ -121,11 +115,6 @@
   h1 {
     color: #D6FFFE;
     text-align: center;
-  }
-
-  #wrap {
-    color: "yellow";
-    text-decoration: "none";
   }
 
   #edit1 {
@@ -606,13 +595,18 @@ h3 {
 }
 
 .redsmall {
-  color: #eec8f4;
-  font-size:9px;
+  color: #FF1111;
+  font-size:11px;
 }
 
 .red {
   color: #FF0000;
   font-size:20px;
+}
+
+.red15 {
+  color: #FF0000;
+  font-size:15px;
 }
 
 .red24 {
