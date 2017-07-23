@@ -935,29 +935,6 @@ function primes(n, ar) {
   };
 
 
-function calc (a, op, b) {
-      var result;
-      switch (op) {
-          case "concat":
-              result = parseInt(a.toString().concat(b.toString()), 10)
-              break;
-          case "add":
-              result = parseInt(a, 10) + parseInt(b, 10);
-              break;
-          case "subtract":
-              result = parseInt(a, 10) - parseInt(b, 10);
-              break;
-          case "mult":
-              result = parseInt(a, 10) * parseInt(b, 10);
-              break;
-          case "div":
-              result = parseInt(a, 10) / parseInt(b, 10);
-              break;
-          default: 'major malfunction in calc.';
-      }
-      return result;
-  };
-
   function noComma (s) {
     s.trim();
     while (s.trim()[0] == ",") {
@@ -1731,25 +1708,64 @@ function *gen(x) {
 
 var primesIt = gen(primesMonad.s[2]+1);
 
+var mMadvice = new Monad ('', 'mMadvice'); 
+
+function calc (a, op, b) {
+  var result;
+  switch (op) {
+    case "concat":
+      result = parseInt(a.toString().concat(b.toString()), 10)
+      break;
+    case "add":
+      result = parseInt(a, 10) + parseInt(b, 10);
+      break;
+    case "subtract":
+      result = parseInt(a, 10) - parseInt(b, 10);
+      break;
+    case "mult":
+      result = parseInt(a, 10) * parseInt(b, 10);
+      break;
+    case "div":
+      result = parseInt(a, 10) / parseInt(b, 10);
+      break;
+    default: 'major malfunction in calc.';
+  }
+  return result;
+};
+
+function updateCalc(ar, op) {
+  var result = calc(ar[0], op, ar[1]);
+  var s = gameMonad.s.slice();
+  var s04 = s[0][s[1]][4].slice()
+  s04.push(result);
+  var s00 = s[0][s[1]][0];
+  var s01 = s[0][s[1]][1];
+  console.log("<^><^><^> push has been executed <^><^><^> s04 <^><^><^>", s04);
+  gameMonad.run(s00, s01, 0, [], s04); 
+  if (result === 18 || result === 20) {
+    score(result);
+  }
+};
+
+function score(result) {
+    var sc = parseInt(gameMonad.fetch0());
+    var sco = result === 18 ? sc + 3 : sc + 1;
+    var scor = sco % 5 === 0 ? sco + 5 : sco;
+    var goals = gameMonad.fetch1();
+    if (scor === 25 && gameMonad.fetch1() === "2") {
+        retrn(mMindex,0);
+        gameMonad = new MonadState('gameMonad', []); //[[0,0,0,[],[0,0,0,0]],[0,0,0,[][0,0,0,0]]],0]);
+        socket.send(`CE#$42,${pMgroup.x},${pMname.x}`);
+        newRoll(0,0);
+    }
+    else if (scor === 25) {
+      newRoll(0, goals*1 + 1);
+    }
+    else newRoll(scor, goals);
+};
 
 var gameMonad = new MonadState('gameMonad', [ [ [0,0,0,[],['lemon','lemon','lemon','lemon'] ]],0 ]);
 console.log("gameMonad.s",gameMonad.s)
-
-MonadState.prototype.dec = function () {
-  this.s[1] -= 1;
-  buttonNode = bNode(this.s[0][this.s[1]][4]);
-  socket.send(`CG#$42,${pMgroup.x},${pMname.x},${this.s[0][this.s[1]][0]},${this.s[0][this.s[1]][1]}`)
-  window[this.id] = this;
-  return this;
-};
-
-MonadState.prototype.inc = function () {
-  this.s[1] += 1
-  buttonNode = bNode(this.s[0][this.s[1]][4]);
-  socket.send(`CG#$42,${pMgroup.x},${pMname.x},${this.s[0][this.s[1]][0]},${this.s[0][this.s[1]][1]}`)
-  window[this.id] = this;
-  return this;
-};
 
 MonadState.prototype.fetch0 = function () {
   return this.s[0][this.s[1]][0];
@@ -1792,58 +1808,20 @@ MonadState.prototype.run = function (
   display, // = this.s[0][this.s[1]][4].slice()
   ) {
   this.s[1] = this.s[1] + 1;
-  console.log('In MonadState.prototype.run  -- this.s[1] is', this.s[1] );
   var newState = [score, goals, operator, picked, display];
   var s = this.s.slice();
   var s0 = s[0].slice();
   s0.splice(this.s[1], 0, newState);
-  console.log("s[0] and s0",s[0],s0);
   window['gameMonad'] = new MonadState('gameMonad', [s0, s[1]] );
-  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
-  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
-  console.log("<@><@><2><2><2><2><2><2><@><@> ***** In run. s0[s[1]]", s0[s[1]] );
   window['gameMonad'].html = bNode(s0[s[1]][4]);
-  console.log("In MonadState.prototype.run. window['gameMonad'] is", window['gameMonad']);
   return window['gameMonad'];
 }
+
 gameMonad.run(0,0,0,[],[2,4,6,8])
+
 function newRoll (a,b) {
   socket.send(`CA#$42,${pMgroup.x},${pMname.x},6,6,12,20,${a},${b}`);
 }
-
-function updateCalc(ar, op) {
-  var result = calc(ar[0], op, ar[1]);
-  console.log('In updateCalc. calc(ar[0],op,ar[1]) is', result);
-  if (result === 18 || result === 20) {
-    score(result);
-  }
-  else {
-    var sco = gameMonad.fetch0();
-    var goals = gameMonad.fetch1();
-    var display = gameMonad.fetch4().slice();
-    display.push(result);
-    window["buttonNode"] = bNode(display);
-    gameMonad.run(sco,goals,0,[],display);
-  }
-};
-
-function score(result) {
-    var sc = parseInt(gameMonad.fetch0());
-    var sco = result === 18 ? sc + 3 : sc + 1;
-    var scor = sco % 5 === 0 ? sco + 5 : sco;
-    var goals = gameMonad.fetch1();
-    if (scor === 25 && gameMonad.fetch1() === "2") {
-        retrn(mMindex,0);
-        gameMonad = new MonadState('gameMonad', []); //[[0,0,0,[],[0,0,0,0]],[0,0,0,[][0,0,0,0]]],0]);
-        socket.send(`CE#$42,${pMgroup.x},${pMname.x}`);
-        newRoll(0,0);
-    }
-    else if (scor === 25) {
-      newRoll(0, goals*1 + 1);
-    }
-    else newRoll(scor, goals);
-};
-
 function MonadState4(g, state) {
     console.log('someone called with g and state in MonadState4', g, state);
     this.id = g;

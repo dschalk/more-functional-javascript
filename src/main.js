@@ -51,9 +51,6 @@ function main(sources) {
     var score = V[7];
     var goals = V[8];
     mMZ10.bnd( () => {
- /*     gameMonad.s[1]+=1;
-      buttonNode = bNode([e1,e2,e3,e4]);
-      gameMonad.s[0].splice(gameMonad.s[1],0,[score,goals,0,[],[e1,e2,e3,e4]]); */
       gameMonad.run(score,goals,0,[],[e1,e2,e3,e4]);
     });
     mMZ11.bnd( () => {
@@ -81,7 +78,7 @@ function main(sources) {
         taskMonad.html = "";
       }
       else {
-        var str = e.data.substring(e.data.indexOf('@')+1, e.data.length) ;
+        var str = e.data.substring(7);
         taskMonad.run2(str);
       }
     });
@@ -314,32 +311,24 @@ socket.onopen = function () {
     .select('.num').events('click');
 
   var numClickAction$ = numClick$.map(e => {
-    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-    console.log("gameMonad.s[1]", gameMonad.s[1]);
-    // if (gameMonad.s[0][gameMonad.s[1]][3].length === 2) return;
     var s = gameMonad.s.slice();
+    var s03 = s[0][s[1]][3].slice();
+    if (s03.length === 2) {
+      bind(mMadvice)(v=>'You have already selected two number. If you want to proceed, pick an operator');
+      setTimeout(bind(mMadvice)(v=>""),3000 );
+      return;
+    }
     var s00 = s[0][s[1]][0];
     var s01 = s[0][s[1]][1];
     var s02 = s[0][s[1]][2];
-    var s03 = s[0][s[1]][3].slice();
     var s04 = s[0][s[1]][4].slice();
-    console.log('s03 and s04 before',s03,s04);
-    var x = s04.splice(e.target.id, 1);
-    s03.push(x[0]);
-    console.log('x, s03 and s04 after ',x, s03, s04 );
-    console.log('s03.length === 2 and s02 !== 0', s03.length === 2, s02 !== 0);
+    s03.push(s04.splice(e.target.id, 1)[0]);
+    gameMonad.run(s00, s01, s02, s03, s04); 
     if (s03.length === 2 && s02 !== 0) {
       s[1] = s[1]+1;
-      gameMonad.run(s00, s01, s02, s03, s04 ); 
-      console.log("IN THE IF BLOCK - Now calling updateCalc s03 and s02 are", s03, s02);
-      updateCalc(s03,s02);
-      return;
+      return updateCalc(s03,s02);
     }
-    console.log('BYPASSING THE IF BLOCK - Calling run');
-    gameMonad.run(s[0][s[1]][0], s[0][s[1]][1], s02, s03, s04); 
-   });
+  });
 
   var opClick$ = sources.DOM
     .select('.op').events('click');
@@ -348,8 +337,11 @@ socket.onopen = function () {
     var s = gameMonad.s.slice();
     var s03 = s[0][s[1]][3].slice();
     if (s03.length === 2) {
+    var s00 = s[0][s[1]][0];
+    var s01 = s[0][s[1]][1];
+    var s02 = s[0][s[1]][2];
+    var s04 = s[0][s[1]][4].slice();
       s[1] = s[1]+1;
-      console.log("Now calling updateCalc. s03 and e.target.innerHTML are",s03,e.target.innerHTML);
       updateCalc(s03, e.target.innerHTML);
     }
     else {
@@ -850,8 +842,8 @@ var edit4BAction$ = edit4B$.map(function (e) {
     .select('input#newTask').events('keydown');
 
   var newTaskAction$ = newTask$.map(function (e) {
-    console.log('************************************ event detected, e',e);
     if (e.keyCode === 13) {
+      console.log('************************************ event detected, e',e);
       var alert = '';
       var s = taskMonad.s.slice();
       s.map(v => v[0] = v[0].replace(/,/g, "<<>>"));
@@ -1322,6 +1314,7 @@ h('h3', 'Scoring' ),
 h('p', ' One goal is awarded each time a player lands on the number 25. The limit for the number of score changes in one turn is two. If the number of increases were not limited, landing on 5 would launch you into an series of increases through all the multiples of five terminating with a stack overflow error message. As a consequence of this rule, only one five-point jump is allowed per turn. '),
 h('p', ' Another way to increase a score, other than computing an number which equals 0 modulo 5, is to compute the number 20 for one additional point, or the number 18 for three additional points. A quick way to arrive at 20 is to start at -1, compute 18 twice, which takes you from -1 to 2 to 5 and jumps you to 10. Then click roll, which sets you back to 9, and compute 18 twice. That takes you from 9 to 12, to 15, jumping you to 20. You don\'t get another jump, so click ROLL and compute 20 or click ROLL three times and compute 18, taking your score from 19 or 17 to 20 and then on to 25 and back to 0, with an increase of one goal. If it is your third goal, you win the game. ' ),
 h('p', ' Now let\'s take a look at the code that responds to number and operator clicks: ' ),
+h('div.red', mMadvice.x ),  
     code.num_op,
 h('p', ' Three types of events cause a state array to be added to gameMonad.s[0]. Clicking a number removes the clicked number from the display, and the new state is preserved in gameMonad.s[0]. Clicking an operator when two numbers have been selected causes a computation to be made, adding a number to the display or, if the result of the computation is 18 or 20, causing a score increase and a new roll of the dice. Either way, the result is preserved in gameMonad.s[0]. Finally, clicking the ROLL button reduces the clicker\'s score by 1 and causes four new numbers to be displayed. The resulting state is spliced into the gameMonad.s[0] array. ' ),
 h('p', ' Requests for new rolls include the name and group of the player making the request. That information is used by the server to deduct one point and to limit broadcast of the new roll to only members of the requesting player\'s group. The request also includes the requesting player\'s score and goals. These are returned by the server (with one point deducted) and are v[7] and v[8] in the messages$ stream. ' ),

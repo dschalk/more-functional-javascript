@@ -17,13 +17,9 @@ MonadState2.prototype.html = "";
 
 MonadState2.prototype.run2 = function (str) {
   var showCheck, showColor, showTextDecoration;
-  var newAr = str.split('<@>').map(v => v = v.split(','));
-  console.log('In MonadState2.run2 (Tasks) str and newAr', str, newAr );
-  newAr.map(v => {
-    console.log('In MonadState2.run2 (Tasks) v ', v );
-    v[0] = v[0].slice().replace(/<<>>/g, ',');
-    console.log('Still in MonadState2.run2 (Tasks) v ', v );
-  });
+  var st = str.replace(/<<>>/g, ',');
+  var newAr = str.split('<@>');
+  console.log('str,st,newAr',str,st,newAr);
   this.s[0] = str;
   this.s[1] = newAr;
   this.s[2] = [];
@@ -39,7 +35,6 @@ MonadState2.prototype.run2 = function (str) {
     showUnCheck = a[1] ? "inline" : "none"
     showColor = a[1] ? "green" : "yellow"
     showTextDecoration = a[1] ? "lineThrough" : "none"
-/*    console.log(a[1],showColor,showTextDecoration,showCheck,showTbxTxt,showButtonText);
     this.s[2].push(h('div#' + n +'.todo', [
       
       h('span.task3', { props: { color: showColor}, style: {textDecoration: showTextDecoration } }, 'Task: ' + a[0]),
@@ -57,7 +52,7 @@ MonadState2.prototype.run2 = function (str) {
       h('button#chbox1', {style: {display: showUnCheck}}, 'change to not completed'),
       h('button#chbox2', {style: {display: showCheck}}, 'change to completed'),
       h('hr')   
-    ]))  */
+    ])) 
   });  
 };
 

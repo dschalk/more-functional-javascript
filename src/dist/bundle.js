@@ -104,9 +104,6 @@
 	    var score = V[7];
 	    var goals = V[8];
 	    mMZ10.bnd(function () {
-	      /*     gameMonad.s[1]+=1;
-	           buttonNode = bNode([e1,e2,e3,e4]);
-	           gameMonad.s[0].splice(gameMonad.s[1],0,[score,goals,0,[],[e1,e2,e3,e4]]); */
 	      gameMonad.run(score, goals, 0, [], [e1, e2, e3, e4]);
 	    });
 	    mMZ11.bnd(function () {
@@ -135,7 +132,7 @@
 	        taskMonad.s = [];
 	        taskMonad.html = "";
 	      } else {
-	        var str = e.data.substring(e.data.indexOf('@') + 1, e.data.length);
+	        var str = e.data.substring(7);
 	        taskMonad.run2(str);
 	      }
 	    });
@@ -394,31 +391,27 @@
 	  var numClick$ = sources.DOM.select('.num').events('click');
 
 	  var numClickAction$ = numClick$.map(function (e) {
-	    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-	    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-	    console.log("<@><@><@><@><@><@><@><@><@@@>>> In numClickAction$");
-	    console.log("gameMonad.s[1]", gameMonad.s[1]);
-	    // if (gameMonad.s[0][gameMonad.s[1]][3].length === 2) return;
 	    var s = gameMonad.s.slice();
+	    var s03 = s[0][s[1]][3].slice();
+	    if (s03.length === 2) {
+	      bind(mMadvice)(function (v) {
+	        return 'You have already selected two number. If you want to proceed, pick an operator';
+	      });
+	      setTimeout(bind(mMadvice)(function (v) {
+	        return "";
+	      }), 3000);
+	      return;
+	    }
 	    var s00 = s[0][s[1]][0];
 	    var s01 = s[0][s[1]][1];
 	    var s02 = s[0][s[1]][2];
-	    var s03 = s[0][s[1]][3].slice();
 	    var s04 = s[0][s[1]][4].slice();
-	    console.log('s03 and s04 before', s03, s04);
-	    var x = s04.splice(e.target.id, 1);
-	    s03.push(x[0]);
-	    console.log('x, s03 and s04 after ', x, s03, s04);
-	    console.log('s03.length === 2 and s02 !== 0', s03.length === 2, s02 !== 0);
+	    s03.push(s04.splice(e.target.id, 1)[0]);
+	    gameMonad.run(s00, s01, s02, s03, s04);
 	    if (s03.length === 2 && s02 !== 0) {
 	      s[1] = s[1] + 1;
-	      gameMonad.run(s00, s01, s02, s03, s04);
-	      console.log("IN THE IF BLOCK - Now calling updateCalc s03 and s02 are", s03, s02);
-	      updateCalc(s03, s02);
-	      return;
+	      return updateCalc(s03, s02);
 	    }
-	    console.log('BYPASSING THE IF BLOCK - Calling run');
-	    gameMonad.run(s[0][s[1]][0], s[0][s[1]][1], s02, s03, s04);
 	  });
 
 	  var opClick$ = sources.DOM.select('.op').events('click');
@@ -427,8 +420,11 @@
 	    var s = gameMonad.s.slice();
 	    var s03 = s[0][s[1]][3].slice();
 	    if (s03.length === 2) {
+	      var s00 = s[0][s[1]][0];
+	      var s01 = s[0][s[1]][1];
+	      var s02 = s[0][s[1]][2];
+	      var s04 = s[0][s[1]][4].slice();
 	      s[1] = s[1] + 1;
-	      console.log("Now calling updateCalc. s03 and e.target.innerHTML are", s03, e.target.innerHTML);
 	      updateCalc(s03, e.target.innerHTML);
 	    } else {
 	      gameMonad.s[0][s[1]][2] = e.target.innerHTML;
@@ -911,8 +907,8 @@
 	  var newTask$ = sources.DOM.select('input#newTask').events('keydown');
 
 	  var newTaskAction$ = newTask$.map(function (e) {
-	    console.log('************************************ event detected, e', e);
 	    if (e.keyCode === 13) {
+	      console.log('************************************ event detected, e', e);
 	      var alert = '';
 	      var s = taskMonad.s.slice();
 	      s.map(function (v) {
@@ -984,7 +980,7 @@
 
 	      //************************************************************************** START GAME
 
-	      (0, _dom.h)('h2', 'The Simulated Dice Game'), (0, _dom.h)('p', ' The game is controlled by gameMonad, which is an instance of MonadState. The state of the game after each click on one of the displayed numbers is saved in an array of five-member arrays comprised of three numbers and two arrays. '), (0, _dom.h)('p', ' The array of state arrays is kept in gameMonad.s[0]. The elements of the five-member arrays correspond to score, goals, operator, selected numbers, and displayed numbers. '), (0, _dom.h)('p', ' gameMonad.s[0][ganeMonad.s[1]] is the state in gameMonad.s[0] that is displayed in the browser. As the previous sentence implies, the index number of the displayed state is the value of gameMonad.s[1]. History traversal is accomplished by changing gameMonad.s[1]. Here is how the application responds to clicks of the BACK and FORWARD buttons:'), _code2.default.backAction, (0, _dom.h)('p', ' gameMonad methods are responsible for everything that happens when the BACK or FORWARD buttons are clicked. These methods do not obtain information outside of the scope of gameMonad, and their side effects are confined to sending websockets messages and updating the DOM. gameMonad was designed to be secure against unpredictable behavior caused by code outside of its scope, and to also not interfere with code that is outside of its scope. gameMonad is an object whose methods conform to functional programming best practices. '), (0, _dom.h)('p', ' The traversal methods are additions to MonadState.prototype as defined in the monad.js file. monad.js is accessed only by functions working in the main thread. Web workers access an identical version of MonadState, only without the prototype additions. It is available to them in the script2.js file, which is never accessed by functions operating in the main thread. Here are the additions to MonadState.prototype: '), _code2.default.prototypeAdditions, (0, _dom.h)('h3', 'Scoring'), (0, _dom.h)('p', ' One goal is awarded each time a player lands on the number 25. The limit for the number of score changes in one turn is two. If the number of increases were not limited, landing on 5 would launch you into an series of increases through all the multiples of five terminating with a stack overflow error message. As a consequence of this rule, only one five-point jump is allowed per turn. '), (0, _dom.h)('p', ' Another way to increase a score, other than computing an number which equals 0 modulo 5, is to compute the number 20 for one additional point, or the number 18 for three additional points. A quick way to arrive at 20 is to start at -1, compute 18 twice, which takes you from -1 to 2 to 5 and jumps you to 10. Then click roll, which sets you back to 9, and compute 18 twice. That takes you from 9 to 12, to 15, jumping you to 20. You don\'t get another jump, so click ROLL and compute 20 or click ROLL three times and compute 18, taking your score from 19 or 17 to 20 and then on to 25 and back to 0, with an increase of one goal. If it is your third goal, you win the game. '), (0, _dom.h)('p', ' Now let\'s take a look at the code that responds to number and operator clicks: '), _code2.default.num_op, (0, _dom.h)('p', ' Three types of events cause a state array to be added to gameMonad.s[0]. Clicking a number removes the clicked number from the display, and the new state is preserved in gameMonad.s[0]. Clicking an operator when two numbers have been selected causes a computation to be made, adding a number to the display or, if the result of the computation is 18 or 20, causing a score increase and a new roll of the dice. Either way, the result is preserved in gameMonad.s[0]. Finally, clicking the ROLL button reduces the clicker\'s score by 1 and causes four new numbers to be displayed. The resulting state is spliced into the gameMonad.s[0] array. '), (0, _dom.h)('p', ' Requests for new rolls include the name and group of the player making the request. That information is used by the server to deduct one point and to limit broadcast of the new roll to only members of the requesting player\'s group. The request also includes the requesting player\'s score and goals. These are returned by the server (with one point deducted) and are v[7] and v[8] in the messages$ stream. '), (0, _dom.h)('p', ' Game traversal is controlled by changing the value of mMindex.x. Here is the code that is called when the BACK button is clicked: '), _code2.default.backAction, (0, _dom.h)('p', ' numClickAction$ and opClickAction$ call updateCalc() when gameMonad.s[0][1]][3] contains two numbers and gameMonad.s[0][1][2] is no longer 0 (implying that an operator has been selected). updateCalc takes two arguments, the selected numbers and the selected operator. This is what happens when updateCalc receives that information: '), _code2.default.updateCalc, (0, _dom.h)('p', '  If parseInt(calc(ar[0], op, ar[1]), 10) is not 18 or 20, updateCalc sets the operator back to 0 and empties the picked numbers array. It also pushes the result of the calculation into the display array. '), (0, _dom.h)('p', ' If the calculation yields 18 or 20, score(result) is called. Here is the definition of score(): '), _code2.default.sco, (0, _dom.h)('p', ' If the score is computed to be 25, the result of increasing goals by 1 determines how state is modified. If the result is not 3, goals is incremented and newRoll() is called with arguments score and goals. If the result is 3, a winner is declared and gameMonad.s reverts to [[[0,0,0,[],[0,0,0,0]]], 0]. '), (0, _dom.h)('p', ' gameMonad does not use its bnd() method, but I stayed with the usual practice of preserving state in instances of MonadState. “A foolish consistency is the hobgoblin of little minds, adored by little statesmen and philosophers and divines." - Ralph Waldo Emerson. Very true, but keeping code easy to reason about is never foolish. '), (0, _dom.h)('br'),
+	      (0, _dom.h)('h2', 'The Simulated Dice Game'), (0, _dom.h)('p', ' The game is controlled by gameMonad, which is an instance of MonadState. The state of the game after each click on one of the displayed numbers is saved in an array of five-member arrays comprised of three numbers and two arrays. '), (0, _dom.h)('p', ' The array of state arrays is kept in gameMonad.s[0]. The elements of the five-member arrays correspond to score, goals, operator, selected numbers, and displayed numbers. '), (0, _dom.h)('p', ' gameMonad.s[0][ganeMonad.s[1]] is the state in gameMonad.s[0] that is displayed in the browser. As the previous sentence implies, the index number of the displayed state is the value of gameMonad.s[1]. History traversal is accomplished by changing gameMonad.s[1]. Here is how the application responds to clicks of the BACK and FORWARD buttons:'), _code2.default.backAction, (0, _dom.h)('p', ' gameMonad methods are responsible for everything that happens when the BACK or FORWARD buttons are clicked. These methods do not obtain information outside of the scope of gameMonad, and their side effects are confined to sending websockets messages and updating the DOM. gameMonad was designed to be secure against unpredictable behavior caused by code outside of its scope, and to also not interfere with code that is outside of its scope. gameMonad is an object whose methods conform to functional programming best practices. '), (0, _dom.h)('p', ' The traversal methods are additions to MonadState.prototype as defined in the monad.js file. monad.js is accessed only by functions working in the main thread. Web workers access an identical version of MonadState, only without the prototype additions. It is available to them in the script2.js file, which is never accessed by functions operating in the main thread. Here are the additions to MonadState.prototype: '), _code2.default.prototypeAdditions, (0, _dom.h)('h3', 'Scoring'), (0, _dom.h)('p', ' One goal is awarded each time a player lands on the number 25. The limit for the number of score changes in one turn is two. If the number of increases were not limited, landing on 5 would launch you into an series of increases through all the multiples of five terminating with a stack overflow error message. As a consequence of this rule, only one five-point jump is allowed per turn. '), (0, _dom.h)('p', ' Another way to increase a score, other than computing an number which equals 0 modulo 5, is to compute the number 20 for one additional point, or the number 18 for three additional points. A quick way to arrive at 20 is to start at -1, compute 18 twice, which takes you from -1 to 2 to 5 and jumps you to 10. Then click roll, which sets you back to 9, and compute 18 twice. That takes you from 9 to 12, to 15, jumping you to 20. You don\'t get another jump, so click ROLL and compute 20 or click ROLL three times and compute 18, taking your score from 19 or 17 to 20 and then on to 25 and back to 0, with an increase of one goal. If it is your third goal, you win the game. '), (0, _dom.h)('p', ' Now let\'s take a look at the code that responds to number and operator clicks: '), (0, _dom.h)('div.red', mMadvice.x), _code2.default.num_op, (0, _dom.h)('p', ' Three types of events cause a state array to be added to gameMonad.s[0]. Clicking a number removes the clicked number from the display, and the new state is preserved in gameMonad.s[0]. Clicking an operator when two numbers have been selected causes a computation to be made, adding a number to the display or, if the result of the computation is 18 or 20, causing a score increase and a new roll of the dice. Either way, the result is preserved in gameMonad.s[0]. Finally, clicking the ROLL button reduces the clicker\'s score by 1 and causes four new numbers to be displayed. The resulting state is spliced into the gameMonad.s[0] array. '), (0, _dom.h)('p', ' Requests for new rolls include the name and group of the player making the request. That information is used by the server to deduct one point and to limit broadcast of the new roll to only members of the requesting player\'s group. The request also includes the requesting player\'s score and goals. These are returned by the server (with one point deducted) and are v[7] and v[8] in the messages$ stream. '), (0, _dom.h)('p', ' Game traversal is controlled by changing the value of mMindex.x. Here is the code that is called when the BACK button is clicked: '), _code2.default.backAction, (0, _dom.h)('p', ' numClickAction$ and opClickAction$ call updateCalc() when gameMonad.s[0][1]][3] contains two numbers and gameMonad.s[0][1][2] is no longer 0 (implying that an operator has been selected). updateCalc takes two arguments, the selected numbers and the selected operator. This is what happens when updateCalc receives that information: '), _code2.default.updateCalc, (0, _dom.h)('p', '  If parseInt(calc(ar[0], op, ar[1]), 10) is not 18 or 20, updateCalc sets the operator back to 0 and empties the picked numbers array. It also pushes the result of the calculation into the display array. '), (0, _dom.h)('p', ' If the calculation yields 18 or 20, score(result) is called. Here is the definition of score(): '), _code2.default.sco, (0, _dom.h)('p', ' If the score is computed to be 25, the result of increasing goals by 1 determines how state is modified. If the result is not 3, goals is incremented and newRoll() is called with arguments score and goals. If the result is 3, a winner is declared and gameMonad.s reverts to [[[0,0,0,[],[0,0,0,0]]], 0]. '), (0, _dom.h)('p', ' gameMonad does not use its bnd() method, but I stayed with the usual practice of preserving state in instances of MonadState. “A foolish consistency is the hobgoblin of little minds, adored by little statesmen and philosophers and divines." - Ralph Waldo Emerson. Very true, but keeping code easy to reason about is never foolish. '), (0, _dom.h)('br'),
 	      //************************************************************************** END GAME
 	      (0, _dom.h)('h2', 'The Todo List'), (0, _dom.h)('p', ' The todo list is shared be the members of each group. It is stored by the server in a file bearing the groups name. Changing to a group causes that group\'s todo list to display. Changes made by one member are immediately seen by other members. '), (0, _dom.h)('p', ' Tasks are held in taskMonad.s (Nested arrays of values) and in taskMonad.html (finished HTML residing in the virtual DOM). MonadState2 has the same basic definition as MonadState, but the run 2() method added to its prototype is not the same as MonadState.run. Rather than burden MonadState.prototype with both run() and run2(), I named taskMonad\'s constructor MonadState2. '), (0, _dom.h)('p', ' When a todo is created, edited, marked as completed, or deleted, the modified list of all tasks is sent to the server, where the new version replaces the former version in the file named after the group and the new version is broadcast to all group members. Here is the code that runs when a todo list arrives at a browser: '), _code2.default.todo1, (0, _dom.h)('p', ' And here is the code that creates, modifies and adds to a list of tasks. It is the entire contents of a file named "tasks.js", which is placed in script tags in index.html. Code in script tags is readily available in the browser consoles, unlike modules loaded in main.js. '), _code2.default.todo2, (0, _dom.h)('p', ' Tasks can be marked a complete or not complete by clicking the checkbox or the complete / not complete buttons. When the checkbox is clicked, the index of the todo is determined and the value of a clone of taskMonad.s named "s" is changed at s[index][1]. If its value is true, it becomes false and if it is false, it becomes true. The color of the task and the line-through attribute are controlled by s[index][1]. Whether or not the completed or not completed button shows also depends on the value of s[index][1]. When one of those buttons is clicked, the value of s[index][1] is changed, causing the check mark in the checkbox to appear or disappear, changing the task color and its line-through attribute, and changing which button ("complete" or "not complete") displays.  '),
 
